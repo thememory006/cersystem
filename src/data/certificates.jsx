@@ -86,24 +86,26 @@ export const dummyCertificates = [
   },
 ];
 
+import { Building2, UserCircle, Briefcase, GraduationCap, BookOpen, Award, Home, Map, MapPin, Flag, Globe } from 'lucide-react';
+
 // Tag color config
 export const TAG_CONFIG = {
   owner_type: {
-    "สถานศึกษา": { bg: "bg-pastel-blue", text: "text-blue-700", border: "border-blue-200", dot: "bg-blue-400", icon: "🏫" },
-    "ผู้บริหาร":  { bg: "bg-pastel-green", text: "text-green-700", border: "border-green-200", dot: "bg-green-400", icon: "👔" },
-    "ครู":        { bg: "bg-pastel-purple", text: "text-purple-700", border: "border-purple-200", dot: "bg-purple-400", icon: "👩‍🏫" },
-    "นักเรียน":  { bg: "bg-pastel-pink", text: "text-pink-700", border: "border-pink-200", dot: "bg-pink-400", icon: "👧👦" },
+    "สถานศึกษา": { bg: "bg-pastel-blue", text: "text-blue-700", border: "border-blue-200", dot: "bg-blue-400", icon: <Building2 className="w-3 h-3 inline" /> },
+    "ผู้บริหาร":  { bg: "bg-pastel-green", text: "text-green-700", border: "border-green-200", dot: "bg-green-400", icon: <UserCircle className="w-3 h-3 inline" /> },
+    "ครู":        { bg: "bg-pastel-purple", text: "text-purple-700", border: "border-purple-200", dot: "bg-purple-400", icon: <Briefcase className="w-3 h-3 inline" /> },
+    "นักเรียน":  { bg: "bg-pastel-pink", text: "text-pink-700", border: "border-pink-200", dot: "bg-pink-400", icon: <GraduationCap className="w-3 h-3 inline" /> },
   },
   item_type: {
-    "อบรม/พัฒนาตนเอง":    { bg: "bg-pastel-orange", text: "text-orange-700", border: "border-orange-200", dot: "bg-orange-400", icon: "📚" },
-    "รางวัล/การแข่งขัน": { bg: "bg-pastel-yellow", text: "text-yellow-700", border: "border-yellow-200", dot: "bg-yellow-400", icon: "🌟" },
+    "อบรม/พัฒนาตนเอง":    { bg: "bg-pastel-orange", text: "text-orange-700", border: "border-orange-200", dot: "bg-orange-400", icon: <BookOpen className="w-3 h-3 inline" /> },
+    "รางวัล/การแข่งขัน": { bg: "bg-pastel-yellow", text: "text-yellow-700", border: "border-yellow-200", dot: "bg-yellow-400", icon: <Award className="w-3 h-3 inline" /> },
   },
   level: {
-    "สถานศึกษา":          { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200", dot: "bg-slate-400", icon: "🏠" },
-    "เขตพื้นที่การศึกษา": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-200", dot: "bg-teal-400", icon: "🚌" },
-    "ภาค":                 { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-200", dot: "bg-orange-400", icon: "🗺️" },
-    "ประเทศ":              { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-200", dot: "bg-rose-400", icon: "🇹🇭" },
-    "นานาชาติ":            { bg: "bg-indigo-100", text: "text-indigo-700", border: "border-indigo-200", dot: "bg-indigo-400", icon: "🌍" },
+    "สถานศึกษา":          { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200", dot: "bg-slate-400", icon: <Home className="w-3 h-3 inline" /> },
+    "เขตพื้นที่การศึกษา": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-200", dot: "bg-teal-400", icon: <MapPin className="w-3 h-3 inline" /> },
+    "ภาค":                 { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-200", dot: "bg-orange-400", icon: <Map className="w-3 h-3 inline" /> },
+    "ประเทศ":              { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-200", dot: "bg-rose-400", icon: <Flag className="w-3 h-3 inline" /> },
+    "นานาชาติ":            { bg: "bg-indigo-100", text: "text-indigo-700", border: "border-indigo-200", dot: "bg-indigo-400", icon: <Globe className="w-3 h-3 inline" /> },
   },
 };
 

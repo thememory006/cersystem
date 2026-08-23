@@ -1,7 +1,8 @@
 import { useAuth } from '../context/AuthContext';
 import { dummyCertificates } from '../data/certificates';
 import CertCard from '../components/CertCard';
-import { Plus } from 'lucide-react';
+import { Plus, Award } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function MyPortfolioPage() {
   const { user } = useAuth();
@@ -35,14 +36,26 @@ export default function MyPortfolioPage() {
           </p>
         </div>
 
-        <button className="btn-primary flex items-center gap-2 mt-4 md:mt-0 relative z-10">
+        <button 
+          onClick={() => {
+            toast.promise(
+              new Promise(resolve => setTimeout(resolve, 2000)),
+              {
+                loading: 'กำลังอัปโหลดรูปภาพ 3 ไฟล์...',
+                success: <b>อัปโหลดสำเร็จ!</b>,
+                error: <b>เกิดข้อผิดพลาด</b>,
+              }
+            );
+          }}
+          className="btn-primary flex items-center gap-2 mt-4 md:mt-0 relative z-10"
+        >
           <Plus size={20} /> เพิ่มผลงานใหม่
         </button>
       </div>
 
       {/* Portfolio Grid */}
       <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200 mb-6 flex items-center gap-2">
-        <span className="text-pink-500">🌟</span> ผลงานทั้งหมดของฉัน
+        <Award className="text-pink-500" size={24} /> ผลงานทั้งหมดของฉัน
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-stagger">

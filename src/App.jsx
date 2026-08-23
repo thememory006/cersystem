@@ -5,6 +5,8 @@ import DashboardLayout from './layouts/DashboardLayout';
 import FeedPage from './pages/FeedPage';
 import SettingsPage from './pages/SettingsPage';
 import MyPortfolioPage from './pages/MyPortfolioPage';
+import BrowserWarning from './components/BrowserWarning';
+import { Toaster } from 'react-hot-toast';
 
 import { FontProvider } from './context/FontContext';
 
@@ -30,6 +32,17 @@ export default function App() {
     <ThemeProvider>
       <FontProvider>
         <AuthProvider>
+          <BrowserWarning />
+          <Toaster 
+            position="bottom-right"
+            toastOptions={{
+              className: 'dark:bg-slate-800 dark:text-slate-200 border-2 border-white dark:border-slate-700 shadow-xl rounded-2xl font-bold text-sm',
+              style: {
+                background: 'white',
+                color: '#334155', // slate-700
+              }
+            }}
+          />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<DashboardLayout />}>

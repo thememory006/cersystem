@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { LogOut, Settings, User, Moon, Sun, Monitor } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { confirmLogout } from '../utils/alert';
 
 export default function Navbar() {
   const { user, loginWithGoogle, logout } = useAuth();
@@ -75,7 +76,11 @@ export default function Navbar() {
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-blue-200 dark:border-pink-500 shadow-sm"
               />
               <button 
-                onClick={logout}
+                onClick={async () => {
+                  if (await confirmLogout()) {
+                    logout();
+                  }
+                }}
                 className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
                 title="ออกจากระบบ"
               >

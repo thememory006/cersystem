@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Type, Users, Database, ShieldCheck, Check, Search } from 'lucide-react';
+import { Type, Users, Database, ShieldCheck, Check, Search, Settings } from 'lucide-react';
 import DriveSettingsCard from '../components/DriveSettingsCard';
 import { useFont, FONT_OPTIONS } from '../context/FontContext';
 
@@ -155,7 +155,7 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold text-slate-800 dark:text-white flex items-center gap-3 mb-2">
-          ⚙️ ตั้งค่าระบบ
+          <Settings size={32} className="text-slate-700 dark:text-slate-300" /> ตั้งค่าระบบ
         </h1>
         <p className="text-slate-500 dark:text-slate-400 font-medium">
           จัดการการแสดงผล โฟลเดอร์เก็บข้อมูล และผู้ใช้งานในระบบ

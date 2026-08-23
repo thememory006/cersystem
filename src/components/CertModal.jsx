@@ -18,15 +18,18 @@ export default function CertModal({ cert, onClose }) {
   const levelConfig = TAG_CONFIG.level[cert.level] || TAG_CONFIG.level["ระดับโรงเรียน"];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-fade-in-up">
+    <div className="fixed inset-0 z-[100] overflow-y-auto animate-fade-in-up">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm"
+        className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm"
         onClick={onClose}
       ></div>
 
-      {/* Modal Content */}
-      <div className="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border-4 border-white dark:border-slate-800">
+      {/* Modal Container */}
+      <div className="min-h-screen px-4 py-8 flex items-center justify-center pointer-events-none">
+        
+        {/* Modal Content */}
+        <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border-4 border-white dark:border-slate-800 pointer-events-auto">
         
         {/* Close Button */}
         <button 

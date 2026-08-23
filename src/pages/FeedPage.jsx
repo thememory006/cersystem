@@ -89,7 +89,7 @@ export default function FeedPage() {
             แฟ้มสะสมผลงาน <span className="gradient-text">โรงเรียนอนุบาลเลย</span>
           </h2>
           <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium mb-8">
-            พื้นที่แห่งความภูมิใจ รวบรวมผลงาน เกียรติบัตร และรอยยิ้มของนักเรียนและบุคลากร 🏫
+            พื้นที่แห่งความภูมิใจ รวบรวมผลงาน เกียรติบัตร และรอยยิ้มของนักเรียนและบุคลากร
           </p>
           
           {/* Stats Bar */}

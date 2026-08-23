@@ -6,6 +6,7 @@ import { Loader2, SearchX, LayoutGrid, List } from 'lucide-react';
 export default function Feed({ certificates, isLoading }) {
   const [activeTab, setActiveTab] = useState('ล่าสุด');
   const [selectedCert, setSelectedCert] = useState(null);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
   if (isLoading) {
     return (
@@ -48,23 +49,33 @@ export default function Feed({ certificates, isLoading }) {
           ))}
         </div>
         
-        <div className="flex items-center gap-2 text-slate-400">
-          <button className="p-2 hover:text-blue-500 hover:bg-blue-50 dark:hover:text-pink-500 dark:hover:bg-slate-800 rounded-xl transition-all">
+        <div className="flex items-center gap-2 text-slate-400 bg-white dark:bg-slate-900 p-1 rounded-2xl border-2 border-slate-100 dark:border-slate-800 shadow-sm">
+          <button 
+            onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600 dark:bg-pink-500/20 dark:text-pink-400' : 'hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300'}`}
+          >
             <LayoutGrid size={20} />
           </button>
-          <button className="p-2 hover:text-blue-500 hover:bg-blue-50 dark:hover:text-pink-500 dark:hover:bg-slate-800 rounded-xl transition-all">
+          <button 
+            onClick={() => setViewMode('list')}
+            className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-blue-50 text-blue-600 dark:bg-pink-500/20 dark:text-pink-400' : 'hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300'}`}
+          >
             <List size={20} />
           </button>
         </div>
       </div>
 
-      {/* Grid: 1 col on mobile, 2 on tablet, up to 6 on XL screens */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 animate-stagger">
+      {/* Grid or List View */}
+      <div className={viewMode === 'grid' 
+        ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-6 animate-stagger"
+        : "flex flex-col gap-4 max-w-4xl animate-stagger"
+      }>
         {certificates.map((cert, index) => (
           <CertCard 
             key={cert.id} 
             cert={cert} 
             onClick={setSelectedCert}
+            viewMode={viewMode}
             style={{ animationDelay: `${index * 0.05}s` }}
           />
         ))}
