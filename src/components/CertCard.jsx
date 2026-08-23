@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Heart, MessageCircle, ExternalLink, MoreHorizontal, Eye } from 'lucide-react';
 import { TAG_CONFIG } from '../data/certificates';
 
-export default function CertCard({ cert }) {
+export default function CertCard({ cert, style, onClick }) {
   const [isHovered, setIsHovered] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -13,9 +13,11 @@ export default function CertCard({ cert }) {
 
   return (
     <div 
-      className="feed-card group p-5 bg-white"
+      className="feed-card group p-5 bg-white cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={style}
+      onClick={() => onClick && onClick(cert)}
     >
       {/* Header Info */}
       <div className="flex justify-between items-start mb-4">

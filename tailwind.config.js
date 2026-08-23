@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Mali', 'cursive', 'sans-serif'],
+        sans: ['var(--font-family-sans)', 'sans-serif'],
       },
       colors: {
         brand: {

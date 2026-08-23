@@ -4,6 +4,9 @@ import { ThemeProvider } from './context/ThemeContext';
 import DashboardLayout from './layouts/DashboardLayout';
 import FeedPage from './pages/FeedPage';
 import SettingsPage from './pages/SettingsPage';
+import MyPortfolioPage from './pages/MyPortfolioPage';
+
+import { FontProvider } from './context/FontContext';
 
 // Simple guard for protected routes
 function ProtectedRoute({ children, requireAdmin = false }) {
@@ -25,31 +28,29 @@ function ProtectedRoute({ children, requireAdmin = false }) {
 export default function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<DashboardLayout />}>
-              <Route index element={<FeedPage />} />
-              
-              <Route path="my-portfolio" element={
-                <ProtectedRoute>
-                  <div className="p-8 text-center text-slate-500">
-                    {/* Placeholder for My Portfolio Page */}
-                    <h2 className="text-2xl font-bold mb-4">แฟ้มผลงานของฉัน</h2>
-                    <p>เร็วๆ นี้...</p>
-                  </div>
-                </ProtectedRoute>
-              } />
+      <FontProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<DashboardLayout />}>
+                <Route index element={<FeedPage />} />
+                
+                <Route path="my-portfolio" element={
+                  <ProtectedRoute>
+                    <MyPortfolioPage />
+                  </ProtectedRoute>
+                } />
 
-              <Route path="settings" element={
-                <ProtectedRoute requireAdmin={true}>
-                  <SettingsPage />
-                </ProtectedRoute>
-              } />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+                <Route path="settings" element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <SettingsPage />
+                  </ProtectedRoute>
+                } />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </FontProvider>
     </ThemeProvider>
   );
 }
