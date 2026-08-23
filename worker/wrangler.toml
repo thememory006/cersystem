@@ -1,0 +1,31 @@
+name = "schoolport-worker"
+main = "src/index.js"
+compatibility_date = "2024-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ─── Cloudflare D1 (SQLite Database) ───────────────────────────────────────────
+[[d1_databases]]
+binding = "DB"
+database_name = "schoolport-db"
+database_id   = "YOUR_D1_DATABASE_ID"      # <-- เปลี่ยนเป็น ID จริงหลัง wrangler d1 create
+
+# ─── Cloudflare R2 (Object Storage) ────────────────────────────────────────────
+[[r2_buckets]]
+binding    = "CERT_BUCKET"
+bucket_name = "schoolport-certificates"    # <-- ชื่อ R2 bucket
+
+# ─── Secrets (ตั้งค่าผ่าน `wrangler secret put <KEY>`) ─────────────────────────
+# GOOGLE_SERVICE_ACCOUNT_JSON   — Service Account JSON key สำหรับ Drive API
+# FIREBASE_PROJECT_ID           — Firebase project ID สำหรับ Auth verification
+# JWT_SECRET                    — Secret สำหรับ sign internal tokens
+
+# ─── Environment Variables ─────────────────────────────────────────────────────
+[vars]
+ENVIRONMENT = "production"
+CORS_ORIGIN = "https://schoolport.pages.dev"   # เปลี่ยนเป็น domain จริง
+
+# ─── Development overrides ─────────────────────────────────────────────────────
+[env.dev]
+[env.dev.vars]
+ENVIRONMENT = "development"
+CORS_ORIGIN = "http://localhost:5173"

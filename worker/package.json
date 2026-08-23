@@ -1,0 +1,16 @@
+{
+  "name": "schoolport-worker",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "hono": "^4.5.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.65.0",
+    "@cloudflare/workers-types": "^4.20240909.0"
+  }
+}
