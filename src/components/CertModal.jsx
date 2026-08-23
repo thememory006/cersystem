@@ -106,6 +106,7 @@ export default function CertModal({ cert, onClose }) {
           </div>
         </div>
 
+        </div>
       </div>
     </div>
   );
