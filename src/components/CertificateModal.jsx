@@ -25,7 +25,7 @@ export default function CertificateModal({ cert, onClose }) {
 
       <div className="fixed inset-0 bg-slate-900/75 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
+      <div className="flex min-h-full items-center justify-center px-4 pt-20 pb-6 sm:px-6 sm:pt-24">
         <div className="relative z-10 w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
 
           <button
