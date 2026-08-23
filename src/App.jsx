@@ -5,37 +5,17 @@ import Feed from './components/Feed';
 import SettingsPage from './pages/SettingsPage';
 import { dummyCertificates } from './data/certificates';
 
-// Ambient background orbs
-function BackgroundOrbs() {
+// Kindergarten Theme Decor
+function DecorElements() {
   return (
     <>
-      <div
-        className="orb w-96 h-96 opacity-20"
-        style={{
-          background: 'radial-gradient(circle, #6366f1 0%, transparent 70%)',
-          top: '10%',
-          left: '5%',
-          animationDelay: '0s',
-        }}
-      />
-      <div
-        className="orb w-80 h-80 opacity-15"
-        style={{
-          background: 'radial-gradient(circle, #a78bfa 0%, transparent 70%)',
-          top: '60%',
-          right: '8%',
-          animationDelay: '3s',
-        }}
-      />
-      <div
-        className="orb w-64 h-64 opacity-10"
-        style={{
-          background: 'radial-gradient(circle, #ec4899 0%, transparent 70%)',
-          bottom: '10%',
-          left: '30%',
-          animationDelay: '6s',
-        }}
-      />
+      <div className="decor-cloud text-pink-200 pointer-events-none" style={{ top: '10%', left: '5%' }}>☁️</div>
+      <div className="decor-cloud text-blue-200 pointer-events-none" style={{ top: '25%', right: '10%', animationDelay: '1s' }}>☁️</div>
+      <div className="decor-cloud text-yellow-100 pointer-events-none" style={{ bottom: '15%', left: '15%', animationDelay: '2.5s' }}>☁️</div>
+      
+      <div className="decor-star text-yellow-300 pointer-events-none" style={{ top: '15%', left: '20%', animationDelay: '0.5s' }}>⭐</div>
+      <div className="decor-star text-yellow-300 pointer-events-none" style={{ top: '35%', right: '25%', animationDelay: '1.5s' }}>⭐</div>
+      <div className="decor-star text-yellow-300 pointer-events-none" style={{ bottom: '25%', right: '15%', animationDelay: '0.8s' }}>⭐</div>
     </>
   );
 }
@@ -44,29 +24,31 @@ function BackgroundOrbs() {
 function LoginModal({ onClose, onLogin }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="glass-card relative z-10 rounded-2xl p-8 w-full max-w-sm animate-fade-in-up border border-white/10">
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="glass-card relative z-10 rounded-3xl p-8 w-full max-w-sm animate-fade-in-up border-4 border-white">
+        {/* Close Button */}
+        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-pink-500">
+          ✖️
+        </button>
+
         {/* Logo */}
         <div className="flex flex-col items-center gap-3 mb-6">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-            style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
-          >
-            🏆
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm overflow-hidden border-4 border-blue-100">
+            <img src="/logo.png" alt="School Logo" className="w-full h-full object-contain p-1" onError={(e) => { e.target.onerror = null; e.target.src = "https://ui-avatars.com/api/?name=School&background=1d4ed8&color=fff"; }} />
           </div>
           <div className="text-center">
-            <h2 className="text-lg font-bold gradient-text">SchoolPort</h2>
-            <p className="text-sm text-slate-400 mt-0.5">เข้าสู่ระบบเพื่อเพิ่มเกียรติบัตร</p>
+            <h2 className="text-xl font-bold text-blue-700">อนุบาลเลยพอร์ต</h2>
+            <p className="text-sm text-slate-500 mt-1">เข้าสู่ระบบเพื่อเพิ่มผลงานของหนูๆ</p>
           </div>
         </div>
 
         {/* Google Login Button */}
         <button
           id="google-login-btn"
-          onClick={() => onLogin({ name: 'Admin ทดสอบ', avatar: 'https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff&bold=true' })}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white text-slate-800 font-semibold text-sm hover:bg-slate-100 transition-all duration-200 shadow-lg"
+          onClick={() => onLogin({ name: 'คุณครูทดสอบ', avatar: 'https://ui-avatars.com/api/?name=คุณครู&background=ffb3c6&color=fff&bold=true' })}
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-2xl bg-white border-2 border-slate-100 text-slate-700 font-bold text-sm hover:border-pink-300 hover:bg-pink-50 transition-all duration-300 shadow-sm"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
@@ -74,10 +56,6 @@ function LoginModal({ onClose, onLogin }) {
           </svg>
           เข้าสู่ระบบด้วย Google
         </button>
-
-        <p className="text-center text-xs text-slate-600 mt-4">
-          การเข้าสู่ระบบต้องใช้บัญชี Google ของโรงเรียน
-        </p>
       </div>
     </div>
   );
@@ -140,7 +118,7 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen">
-      <BackgroundOrbs />
+      <DecorElements />
 
       {/* Navbar */}
       <Navbar
@@ -152,14 +130,14 @@ export default function App() {
 
       {/* Page: Settings */}
       {page === 'settings' && (
-        <div className="relative z-10">
+        <div className="relative z-10 pt-16">
           <SettingsPage onBack={() => setPage('dashboard')} />
         </div>
       )}
 
       {/* Page: Dashboard */}
       {page === 'dashboard' && (
-        <div className="relative z-10 flex min-h-screen pt-16">
+        <div className="relative z-10 flex flex-col lg:flex-row min-h-screen pt-16">
           {/* Left Sidebar */}
           <Sidebar
             filters={filters}
@@ -168,34 +146,29 @@ export default function App() {
           />
 
           {/* Main Content */}
-          <div className="flex-1 lg:ml-64 px-4 md:px-6 py-6 max-w-3xl mx-auto w-full">
+          <div className="flex-1 lg:ml-64 px-4 md:px-6 py-8 max-w-4xl mx-auto w-full">
             {/* Hero Banner */}
-            <div
-              className="glass-card rounded-2xl p-6 mb-6 relative overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(167,139,250,0.10) 50%, rgba(236,72,153,0.08) 100%)',
-                borderColor: 'rgba(99,102,241,0.2)',
-              }}
-            >
-              {/* Background decoration */}
-              <div className="absolute top-0 right-0 w-48 h-48 opacity-20"
-                style={{ background: 'radial-gradient(circle, #818cf8 0%, transparent 70%)' }} />
+            <div className="glass-card rounded-3xl p-8 mb-8 text-center relative overflow-hidden border-4 border-white shadow-xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-200 rounded-full blur-2xl -mr-10 -mt-10"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-200 rounded-full blur-2xl -ml-10 -mb-10"></div>
+              
               <div className="relative z-10">
-                <p className="text-xs font-bold uppercase tracking-widest text-brand-400 mb-2">🏫 SchoolPort Dashboard</p>
-                <h2 className="text-xl font-extrabold text-white mb-1">
-                  ระบบเก็บเกียรติบัตร & Portfolio
+                <div className="flex justify-center mb-4 animate-bounce-slow">
+                  <img src="/logo.png" alt="School Logo" className="w-24 h-24 object-contain" onError={(e) => e.target.style.display = 'none'} />
+                </div>
+                <h2 className="text-3xl md:text-4xl font-extrabold mb-3 text-slate-700">
+                  แฟ้มสะสมผลงาน <span className="text-blue-600">โรงเรียนอนุบาลเลย</span>
                 </h2>
-                <p className="text-sm text-slate-400 max-w-md">
-                  แพลตฟอร์มแสดงผลงาน เกียรติบัตร และรางวัลของสถานศึกษา
-                  ผู้บริหาร ครู และนักเรียน — เก็บข้อมูลใน Google Drive อย่างเป็นระบบ
+                <p className="text-base text-slate-500 max-w-xl mx-auto font-medium">
+                  พื้นที่แห่งความภูมิใจ รวบรวมผลงาน เกียรติบัตร และรอยยิ้มของนักเรียนและบุคลากร
                 </p>
+                
                 {!isLoggedIn && (
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="btn-primary mt-4 inline-flex items-center gap-2 text-sm"
+                    className="btn-primary mt-6 text-lg tracking-wide px-8 py-3"
                   >
-                    <span>เพิ่มเกียรติบัตรของคุณ</span>
-                    <span>→</span>
+                    ✨ เพิ่มผลงานใหม่ ✨
                   </button>
                 )}
               </div>
