@@ -5,6 +5,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import FeedPage from './pages/FeedPage';
 import SettingsPage from './pages/SettingsPage';
 import MyPortfolioPage from './pages/MyPortfolioPage';
+import EmbedPortfolioPage from './pages/EmbedPortfolioPage';
 import BrowserWarning from './components/BrowserWarning';
 import { Toaster } from 'react-hot-toast';
 
@@ -45,6 +46,10 @@ export default function App() {
           />
           <BrowserRouter>
             <Routes>
+              {/* Public Embed Route */}
+              <Route path="/embed/:username" element={<EmbedPortfolioPage />} />
+              
+              {/* Dashboard Layout Routes */}
               <Route path="/" element={<DashboardLayout />}>
                 <Route index element={<FeedPage />} />
                 

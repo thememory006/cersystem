@@ -1,10 +1,39 @@
 import { useState } from 'react';
 import { Heart, Eye, ExternalLink, GraduationCap, Briefcase, Building2, UserCircle, BookOpen, Award, Home, MapPin, Map, Flag, Globe } from 'lucide-react';
 import { TAG_CONFIG } from '../data/certificates';
+import confetti from 'canvas-confetti';
 
 export default function CertCard({ cert, style, onClick, viewMode = 'grid' }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likes, setLikes] = useState(cert.likes ?? 0);
+
+  const handleLike = (e) => {
+    e.stopPropagation(); // prevent modal opening
+    if (!isLiked) {
+      setIsLiked(true);
+      setLikes(prev => prev + 1);
+      
+      // Heart burst confetti effect
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = (rect.left + rect.width / 2) / window.innerWidth;
+      const y = (rect.top + rect.height / 2) / window.innerHeight;
+      
+      confetti({
+        particleCount: 40,
+        spread: 60,
+        origin: { x, y },
+        colors: ['#ef4444', '#f472b6', '#3b82f6'],
+        disableForReducedMotion: true,
+        zIndex: 100,
+        scalar: 0.8
+      });
+    } else {
+      setIsLiked(false);
+      setLikes(prev => prev - 1);
+    }
+  };
 
   const ownerConfig = TAG_CONFIG.owner_type[cert.owner_type] || TAG_CONFIG.owner_type["นักเรียน"];
   const itemConfig  = TAG_CONFIG.item_type[cert.item_type]   || TAG_CONFIG.item_type["รางวัล/การแข่งขัน"];
@@ -72,9 +101,12 @@ export default function CertCard({ cert, style, onClick, viewMode = 'grid' }) {
 
           <div className="flex items-center justify-between mt-auto pt-1">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-slate-400 text-xs">
-                <Heart size={12} /> {cert.likes ?? 0}
-              </span>
+              <button 
+                onClick={handleLike}
+                className={`flex items-center gap-1 text-xs transition-colors ${isLiked ? 'text-red-500' : 'text-slate-400 hover:text-red-400'}`}
+              >
+                <Heart size={12} className={isLiked ? "fill-red-500 animate-heart-pop" : ""} /> {likes}
+              </button>
               <span className="flex items-center gap-1 text-slate-400 text-xs">
                 <Eye size={12} /> {cert.views ?? 0}
               </span>
@@ -162,8 +194,13 @@ export default function CertCard({ cert, style, onClick, viewMode = 'grid' }) {
 
         {/* Footer stats */}
         <div className="flex items-center justify-between mt-auto pt-1 border-t border-dashed border-slate-100 dark:border-slate-700">
-          <div className="flex items-center gap-2.5">
-            <span className="flex items-center gap-1 text-slate-400 text-[11px]"><Heart size={11} /> {cert.likes ?? 0}</span>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleLike}
+              className={`flex items-center gap-1 text-[11px] transition-colors ${isLiked ? 'text-red-500' : 'text-slate-400 hover:text-red-400'}`}
+            >
+              <Heart size={11} className={isLiked ? "fill-red-500 animate-heart-pop" : ""} /> {likes}
+            </button>
             <span className="flex items-center gap-1 text-slate-400 text-[11px]"><Eye size={11} /> {cert.views ?? 0}</span>
           </div>
           {cert.drive_url && (

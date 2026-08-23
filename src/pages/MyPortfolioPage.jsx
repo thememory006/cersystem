@@ -1,8 +1,9 @@
 import { useAuth } from '../context/AuthContext';
 import { dummyCertificates } from '../data/certificates';
 import CertCard from '../components/CertCard';
-import { Plus, Award } from 'lucide-react';
+import { Plus, Award, Share2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 export default function MyPortfolioPage() {
   const { user } = useAuth();
@@ -36,21 +37,56 @@ export default function MyPortfolioPage() {
           </p>
         </div>
 
-        <button 
-          onClick={() => {
-            toast.promise(
-              new Promise(resolve => setTimeout(resolve, 2000)),
-              {
-                loading: 'กำลังอัปโหลดรูปภาพ 3 ไฟล์...',
-                success: <b>อัปโหลดสำเร็จ!</b>,
-                error: <b>เกิดข้อผิดพลาด</b>,
-              }
-            );
-          }}
-          className="btn-primary flex items-center gap-2 mt-4 md:mt-0 relative z-10"
-        >
-          <Plus size={20} /> เพิ่มผลงานใหม่
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0 relative z-10">
+          <button 
+            onClick={() => {
+              const embedUrl = `${window.location.origin}/embed/${encodeURIComponent(user?.name || 'demo')}`;
+              const iframeCode = `<iframe src="${embedUrl}" width="100%" height="600" style="border:none; border-radius:12px; overflow:hidden;"></iframe>`;
+              
+              Swal.fire({
+                title: 'โค้ดสำหรับฝัง (Embed)',
+                html: `
+                  <p class="text-sm text-slate-500 mb-4">คัดลอกโค้ดด้านล่างเพื่อนำไปแปะในเว็บไซต์ของคุณ</p>
+                  <textarea readonly class="w-full h-32 p-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500">${iframeCode}</textarea>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'คัดลอกโค้ด',
+                cancelButtonText: 'ปิด',
+                confirmButtonColor: '#3b82f6',
+                customClass: {
+                  popup: 'rounded-3xl dark:bg-slate-900',
+                  title: 'dark:text-white',
+                  confirmButton: 'rounded-xl',
+                  cancelButton: 'rounded-xl'
+                }
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  navigator.clipboard.writeText(iframeCode);
+                  toast.success('คัดลอกโค้ดเรียบร้อยแล้ว!');
+                }
+              });
+            }}
+            className="px-5 py-2.5 rounded-xl font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-800/50 transition-colors flex items-center justify-center gap-2"
+          >
+            <Share2 size={20} /> แชร์ / นำไปฝัง
+          </button>
+          
+          <button 
+            onClick={() => {
+              toast.promise(
+                new Promise(resolve => setTimeout(resolve, 2000)),
+                {
+                  loading: 'กำลังอัปโหลดรูปภาพ 3 ไฟล์...',
+                  success: <b>อัปโหลดสำเร็จ!</b>,
+                  error: <b>เกิดข้อผิดพลาด</b>,
+                }
+              );
+            }}
+            className="btn-primary flex items-center justify-center gap-2"
+          >
+            <Plus size={20} /> เพิ่มผลงานใหม่
+          </button>
+        </div>
       </div>
 
       {/* Portfolio Grid */}

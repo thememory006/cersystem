@@ -1,12 +1,40 @@
-import { X, Download, User, Calendar, Award, MapPin } from 'lucide-react';
+import { X, Download, User, Calendar, Award, MapPin, Heart } from 'lucide-react';
 import { TAG_CONFIG } from '../data/certificates';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import confetti from 'canvas-confetti';
 
 export default function CertificateModal({ cert, onClose }) {
+  const [isLiked, setIsLiked] = useState(false);
+  const [likes, setLikes] = useState(cert?.likes ?? 0);
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, []);
+
+  const handleLike = (e) => {
+    if (!isLiked) {
+      setIsLiked(true);
+      setLikes(prev => prev + 1);
+      
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = (rect.left + rect.width / 2) / window.innerWidth;
+      const y = (rect.top + rect.height / 2) / window.innerHeight;
+      
+      confetti({
+        particleCount: 50,
+        spread: 70,
+        origin: { x, y },
+        colors: ['#ef4444', '#f472b6', '#3b82f6'],
+        disableForReducedMotion: true,
+        zIndex: 300,
+        scalar: 1.2
+      });
+    } else {
+      setIsLiked(false);
+      setLikes(prev => prev - 1);
+    }
+  };
 
   useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -103,12 +131,13 @@ export default function CertificateModal({ cert, onClose }) {
 
             <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 flex-shrink-0">
               <div className="flex items-center gap-4 text-sm text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                  {cert.likes ?? 0}
-                </span>
+                <button 
+                  onClick={handleLike}
+                  className={`flex items-center gap-1.5 transition-colors ${isLiked ? 'text-red-500' : 'text-slate-400 hover:text-red-400'}`}
+                >
+                  <Heart size={16} className={isLiked ? "fill-red-500 animate-heart-pop" : ""} />
+                  {likes}
+                </button>
                 <span className="flex items-center gap-1.5">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
