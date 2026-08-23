@@ -1,26 +1,22 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
 
-// ⚠️ ให้ผู้ใช้นำ Firebase Config ของตัวเองมาใส่ตรงนี้
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBNHoORXABB0XUZ0X6-H352jOo4AWXcEGk",
+  authDomain: "cershcoolsystem.firebaseapp.com",
+  projectId: "cershcoolsystem",
+  storageBucket: "cershcoolsystem.firebasestorage.app",
+  messagingSenderId: "281596933584",
+  appId: "1:281596933584:web:42770e6c80eca1ed97b5d5",
+  measurementId: "G-5ZXRDFLB2P"
 };
 
-let app;
-let auth;
-let googleProvider;
-
-try {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  googleProvider = new GoogleAuthProvider();
-} catch (error) {
-  console.warn("⚠️ Firebase Config is missing or invalid. Please update src/lib/firebase.js");
-}
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
 export { auth, googleProvider };
