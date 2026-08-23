@@ -6,7 +6,23 @@
 -- ─── Drop tables (for re-run) ────────────────────────────────────────────────
 -- DROP TABLE IF EXISTS certificates;
 -- DROP TABLE IF EXISTS drive_config;
+-- DROP TABLE IF EXISTS settings;
 -- DROP TABLE IF EXISTS users;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Table: settings
+-- เก็บข้อมูลการตั้งค่าระบบส่วนกลาง (เช่น Logo URL, ฟอนต์)
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS settings (
+  key         TEXT PRIMARY KEY,            -- e.g. 'logo_url', 'primary_font'
+  value       TEXT NOT NULL,               -- e.g. 'https://...', 'Inter'
+  updated_at  TEXT DEFAULT (datetime('now')),
+  updated_by  TEXT                         -- user.id ของ Admin
+);
+
+-- Seed default settings
+INSERT OR IGNORE INTO settings (key, value) VALUES
+  ('logo_url', '');
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Table: users

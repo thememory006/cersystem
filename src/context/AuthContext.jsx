@@ -25,13 +25,29 @@ export function AuthProvider({ children }) {
         const adminEmails = ['thememory003@gmail.com', 'thememory006@gmail.com'];
         const role = adminEmails.includes(firebaseUser.email) ? 'admin' : 'user';
         
-        setUser({
+        const userData = {
           uid: firebaseUser.uid,
           name: firebaseUser.displayName,
           email: firebaseUser.email,
           avatar: firebaseUser.photoURL,
           role: role,
-        });
+        };
+        
+        setUser(userData);
+
+        // Sync to D1 Backend (fire and forget)
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+        fetch(`${apiUrl}/api/users/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: firebaseUser.uid,
+            email: firebaseUser.email,
+            name: firebaseUser.displayName,
+            avatar_url: firebaseUser.photoURL,
+          }),
+        }).catch(err => console.error("Sync user error:", err));
+        
       } else {
         setUser(null);
       }

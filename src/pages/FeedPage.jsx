@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { dummyCertificates, TAG_CONFIG } from '../data/certificates';
+import { useState, useMemo, useEffect } from 'react';
+import { TAG_CONFIG } from '../data/certificates';
 import Feed from '../components/Feed';
 import { useAuth } from '../context/AuthContext';
 import { Filter, X, Award, Users, GraduationCap } from 'lucide-react';
@@ -7,12 +7,31 @@ import { Filter, X, Award, Users, GraduationCap } from 'lucide-react';
 export default function FeedPage() {
   const { user } = useAuth();
   
+  const [certificates, setCertificates] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   // Filter state
   const [filters, setFilters] = useState({
     ownerType: [],
     itemType: [],
     level: [],
   });
+
+  useEffect(() => {
+    const fetchCerts = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+        const res = await fetch(`${apiUrl}/api/certificates`);
+        const data = await res.json();
+        if (data.success) setCertificates(data.certificates);
+      } catch (err) {
+        console.error("Error fetching certificates:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCerts();
+  }, []);
 
   const handleFilterToggle = (groupKey, value) => {
     setFilters(prev => {
@@ -31,13 +50,13 @@ export default function FeedPage() {
   };
 
   const filtered = useMemo(() => {
-    return dummyCertificates.filter(cert => {
+    return certificates.filter(cert => {
       const ownerOk = filters.ownerType.length === 0 || filters.ownerType.includes(cert.owner_type);
       const itemOk  = filters.itemType.length === 0  || filters.itemType.includes(cert.item_type);
       const levelOk = filters.level.length === 0     || filters.level.includes(cert.level);
       return ownerOk && itemOk && levelOk;
     });
-  }, [filters]);
+  }, [filters, certificates]);
 
   const renderFilterChips = (groupKey, configObj) => (
     <div className="flex flex-wrap gap-2">
@@ -64,9 +83,9 @@ export default function FeedPage() {
   const hasActiveFilters = filters.ownerType.length > 0 || filters.itemType.length > 0 || filters.level.length > 0;
 
   // Stats calculation
-  const totalCerts = dummyCertificates.length;
-  const teacherCerts = dummyCertificates.filter(c => c.owner_type === 'ครูผู้สอน').length;
-  const studentCerts = dummyCertificates.filter(c => c.owner_type === 'นักเรียน').length;
+  const totalCerts = certificates.length;
+  const teacherCerts = certificates.filter(c => c.owner_type === 'ครูผู้สอน').length;
+  const studentCerts = certificates.filter(c => c.owner_type === 'นักเรียน').length;
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
@@ -149,7 +168,7 @@ export default function FeedPage() {
 
       {/* Main Feed Content */}
       <div className="w-full">
-        <Feed certificates={filtered} isLoading={false} />
+        <Feed certificates={filtered} isLoading={loading} />
       </div>
 
     </div>

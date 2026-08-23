@@ -1,25 +1,39 @@
 import { useParams } from 'react-router-dom';
-import { dummyCertificates } from '../data/certificates';
 import CertCard from '../components/CertCard';
-import { Award, SearchX } from 'lucide-react';
-import { useState } from 'react';
+import { Award, SearchX, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import CertificateModal from '../components/CertificateModal';
 
 export default function EmbedPortfolioPage() {
   const { username } = useParams();
   const [selectedCert, setSelectedCert] = useState(null);
+  const [displayCerts, setDisplayCerts] = useState([]);
+  const [loading, setLoading] = useState(true);
   
-  // In a real app, you would fetch the specific user's certs by ID from the API
   // Here we use a naive decodeURIComponent of the username param
   const decodedUsername = decodeURIComponent(username || '');
   
-  // Filter dummy certs matching the username, or just show a fallback if not found
-  const userCerts = dummyCertificates.filter(
-    (c) => c.user_name === decodedUsername || username === 'demo'
-  );
-
-  // If we used 'demo', just use the first 4 certs
-  const displayCerts = username === 'demo' ? dummyCertificates.slice(0, 4) : userCerts;
+  useEffect(() => {
+    const fetchCerts = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+        const res = await fetch(`${apiUrl}/api/certificates`);
+        const data = await res.json();
+        
+        if (data.success) {
+          const userCerts = data.certificates.filter(
+            (c) => c.user_name === decodedUsername || username === 'demo'
+          );
+          setDisplayCerts(username === 'demo' ? data.certificates.slice(0, 4) : userCerts);
+        }
+      } catch (err) {
+        console.error("Error fetching certificates:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCerts();
+  }, [username, decodedUsername]);
 
   return (
     <div className="min-h-screen bg-transparent p-4 sm:p-6 font-sans antialiased text-slate-800 dark:text-slate-200">
@@ -40,7 +54,12 @@ export default function EmbedPortfolioPage() {
       </div>
 
       {/* Grid */}
-      {displayCerts.length > 0 ? (
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-12 text-blue-500">
+          <Loader2 size={32} className="animate-spin mb-3" />
+          <p className="font-bold text-slate-500">กำลังโหลดผลงาน...</p>
+        </div>
+      ) : displayCerts.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 animate-stagger">
           {displayCerts.map((cert, i) => (
             <CertCard 

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { SettingsProvider } from './context/SettingsContext';
 import DashboardLayout from './layouts/DashboardLayout';
 import FeedPage from './pages/FeedPage';
 import SettingsPage from './pages/SettingsPage';
@@ -32,7 +33,8 @@ export default function App() {
   return (
     <ThemeProvider>
       <FontProvider>
-        <AuthProvider>
+        <SettingsProvider>
+          <AuthProvider>
           <BrowserWarning />
           <Toaster 
             position="bottom-right"
@@ -68,6 +70,7 @@ export default function App() {
             </Routes>
           </BrowserRouter>
         </AuthProvider>
+        </SettingsProvider>
       </FontProvider>
     </ThemeProvider>
   );

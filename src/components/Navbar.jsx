@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useSettings } from '../context/SettingsContext';
 import { LogOut, Settings, User, Moon, Sun, Monitor } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { confirmLogout } from '../utils/alert';
@@ -8,6 +9,7 @@ import { confirmLogout } from '../utils/alert';
 export default function Navbar() {
   const { user, loginWithGoogle, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { logoUrl } = useSettings();
   
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const themeMenuRef = useRef(null);
@@ -29,7 +31,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 cursor-pointer group">
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform overflow-hidden border-2 border-blue-100 dark:border-pink-500">
-            <img src="/logo.png" alt="School Logo" className="w-full h-full object-contain p-1" onError={(e) => { e.target.onerror = null; e.target.src = "https://ui-avatars.com/api/?name=School&background=1d4ed8&color=fff"; }} />
+            <img src={logoUrl} alt="School Logo" className="w-full h-full object-contain p-1" onError={(e) => { e.target.onerror = null; e.target.src = "https://ui-avatars.com/api/?name=School&background=1d4ed8&color=fff"; }} />
           </div>
           <span className="text-xl font-extrabold text-blue-700 dark:text-pink-400 tracking-tight hidden sm:block">
             อนุบาลเลยพอร์ต

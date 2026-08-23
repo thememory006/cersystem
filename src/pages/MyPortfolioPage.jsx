@@ -1,16 +1,37 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { dummyCertificates } from '../data/certificates';
 import CertCard from '../components/CertCard';
+import UploadModal from '../components/UploadModal';
 import { Plus, Award, Share2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 
 export default function MyPortfolioPage() {
   const { user } = useAuth();
-  
-  // Dummy logic: filter certificates belonging to this user
-  // (In real app, we fetch from API using user.uid)
-  const myCerts = dummyCertificates.slice(0, 3); // mock just taking first 3
+  const [myCerts, setMyCerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+
+  const fetchMyCerts = async () => {
+    if (!user?.uid) return;
+    try {
+      setLoading(true);
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+      const res = await fetch(`${apiUrl}/api/certificates?userId=${user.uid}`);
+      const data = await res.json();
+      if (data.success) {
+        setMyCerts(data.certificates);
+      }
+    } catch (err) {
+      console.error("Error fetching my certificates:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMyCerts();
+  }, [user]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in-up">
@@ -72,16 +93,7 @@ export default function MyPortfolioPage() {
           </button>
           
           <button 
-            onClick={() => {
-              toast.promise(
-                new Promise(resolve => setTimeout(resolve, 2000)),
-                {
-                  loading: 'กำลังอัปโหลดรูปภาพ 3 ไฟล์...',
-                  success: <b>อัปโหลดสำเร็จ!</b>,
-                  error: <b>เกิดข้อผิดพลาด</b>,
-                }
-              );
-            }}
+            onClick={() => setShowUploadModal(true)}
             className="btn-primary flex items-center justify-center gap-2"
           >
             <Plus size={20} /> เพิ่มผลงานใหม่
@@ -94,11 +106,31 @@ export default function MyPortfolioPage() {
         <Award className="text-pink-500" size={24} /> ผลงานทั้งหมดของฉัน
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-stagger">
-        {myCerts.map((cert, i) => (
-          <CertCard key={cert.id} cert={cert} style={{ animationDelay: `${i * 0.1}s` }} />
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-stagger min-h-[200px]">
+        {loading ? (
+          <div className="col-span-full flex justify-center items-center h-full">
+            <span className="text-slate-400">กำลังโหลดผลงาน...</span>
+          </div>
+        ) : myCerts.length > 0 ? (
+          myCerts.map((cert, i) => (
+            <CertCard key={cert.id} cert={cert} style={{ animationDelay: `${i * 0.1}s` }} />
+          ))
+        ) : (
+          <div className="col-span-full flex justify-center items-center h-full">
+            <span className="text-slate-400">ยังไม่มีผลงานในระบบ</span>
+          </div>
+        )}
       </div>
+
+      {showUploadModal && (
+        <UploadModal 
+          onClose={() => setShowUploadModal(false)} 
+          onUploadSuccess={() => {
+            setShowUploadModal(false);
+            fetchMyCerts();
+          }}
+        />
+      )}
 
     </div>
   );

@@ -2,6 +2,9 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { driveRoutes } from './routes/drive.js';
+import { settingsRoutes } from './routes/settings.js';
+import { certificatesRoutes } from './routes/certificates.js';
+import { usersRoutes } from './routes/users.js';
 
 const app = new Hono();
 
@@ -28,6 +31,9 @@ app.get('/', (c) => c.json({
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 app.route('/api/drive', driveRoutes);
+app.route('/api/settings', settingsRoutes);
+app.route('/api/certificates', certificatesRoutes);
+app.route('/api/users', usersRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.notFound((c) => c.json({ error: 'Route not found' }, 404));

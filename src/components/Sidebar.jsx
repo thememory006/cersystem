@@ -11,13 +11,8 @@ export default function Sidebar() {
   const navItems = [
     { name: 'หน้าแรก (Feed)', path: '/', icon: Home, show: true },
     { name: 'แฟ้มผลงานของฉัน', path: '/my-portfolio', icon: Folder, show: !!user },
-    { name: 'ตั้งค่าระบบ', path: '/settings', icon: Settings, show: true },
+    { name: 'ตั้งค่าระบบ', path: '/settings', icon: Settings, show: user?.role === 'admin' },
   ];
-
-  // ถ้าไม่ใช่แอดมิน ไม่ต้องแสดง Sidebar เลย
-  if (user?.role !== 'admin') {
-    return null;
-  }
 
   return (
     <>

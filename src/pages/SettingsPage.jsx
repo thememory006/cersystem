@@ -1,11 +1,19 @@
-import { useState } from 'react';
-import { Type, Users, Database, ShieldCheck, Check, Search, Settings } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Type, Users, Database, ShieldCheck, Check, Search, Settings, Image as ImageIcon, Save } from 'lucide-react';
 import DriveSettingsCard from '../components/DriveSettingsCard';
 import { useFont, FONT_OPTIONS } from '../context/FontContext';
+import { useSettings } from '../context/SettingsContext';
+import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general');
   const { font, setFont } = useFont();
+  const { logoUrl, updateLogoUrl } = useSettings();
+  const [inputLogoUrl, setInputLogoUrl] = useState('');
+
+  useEffect(() => {
+    if (logoUrl) setInputLogoUrl(logoUrl);
+  }, [logoUrl]);
 
   // Mock data for Drive Folder IDs
   const driveConfigs = [
@@ -24,6 +32,46 @@ export default function SettingsPage() {
 
   const renderGeneralTab = () => (
     <div className="space-y-6">
+      
+      {/* Logo URL Settings */}
+      <div className="glass-card p-6 border-2 border-white dark:border-slate-700">
+        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 mb-4">
+          <ImageIcon size={20} className="text-blue-500" />
+          โลโก้สถานศึกษา (Logo URL)
+        </h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+          ระบุ URL ของรูปภาพโลโก้ที่จะแสดงบนแท็บนำทาง (Navbar)
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm border-2 border-blue-100 dark:border-slate-600 overflow-hidden shrink-0">
+            <img 
+              src={inputLogoUrl || '/logo.png'} 
+              alt="Preview Logo" 
+              className="w-full h-full object-contain p-1" 
+              onError={(e) => { e.target.onerror = null; e.target.src = "https://ui-avatars.com/api/?name=Logo&background=1d4ed8&color=fff"; }} 
+            />
+          </div>
+          <div className="flex-1 w-full relative">
+            <input 
+              type="text" 
+              value={inputLogoUrl}
+              onChange={(e) => setInputLogoUrl(e.target.value)}
+              placeholder="https://example.com/logo.png" 
+              className="w-full pl-4 pr-4 py-2.5 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 font-mono"
+            />
+          </div>
+          <button 
+            onClick={() => {
+              updateLogoUrl(inputLogoUrl);
+              toast.success('อัปเดตโลโก้เรียบร้อยแล้ว');
+            }}
+            className="btn-primary py-2.5 px-6 flex items-center gap-2 whitespace-nowrap"
+          >
+            <Save size={18} /> บันทึกโลโก้
+          </button>
+        </div>
+      </div>
+
       <div className="glass-card p-6 border-2 border-white dark:border-slate-700">
         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 mb-4">
           <Type size={20} className="text-pink-500" />
