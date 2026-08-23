@@ -2,7 +2,7 @@ import { X, ExternalLink, Calendar, User, Tag, Download } from 'lucide-react';
 import { TAG_CONFIG } from '../data/certificates';
 import { useEffect } from 'react';
 
-export default function CertModal({ cert, onClose }) {
+export default function CertificateModal({ cert, onClose }) {
   // Prevent body scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden';

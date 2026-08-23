@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import CertCard from './CertCard';
-import CertModal from './CertModal';
+import CertificateModal from './CertificateModal';
 import { Loader2, SearchX, LayoutGrid, List } from 'lucide-react';
 
 export default function Feed({ certificates, isLoading }) {
@@ -83,7 +83,7 @@ export default function Feed({ certificates, isLoading }) {
 
       {/* Modal */}
       {selectedCert && (
-        <CertModal 
+        <CertificateModal 
           cert={selectedCert} 
           onClose={() => setSelectedCert(null)} 
         />
