@@ -1,162 +1,70 @@
+import { Link, useLocation } from 'react-router-dom';
+import { Home, Folder, Settings, Menu, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
-import { Filter, ChevronDown, ChevronUp, X, SlidersHorizontal } from 'lucide-react';
-import { FILTER_OPTIONS, TAG_CONFIG } from '../data/certificates';
 
-function FilterGroup({ groupKey, label, options, selected, onToggle, config }) {
-  const [isOpen, setIsOpen] = useState(true);
+export default function Sidebar() {
+  const { user } = useAuth();
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navItems = [
+    { name: 'หน้าแรก (Feed)', path: '/', icon: Home, show: true },
+    { name: 'แฟ้มผลงานของฉัน', path: '/my-portfolio', icon: Folder, show: !!user },
+    { name: 'ตั้งค่าระบบ', path: '/settings', icon: Settings, show: user?.role === 'admin' },
+  ];
 
   return (
-    <div className="mb-1">
-      <button
+    <>
+      {/* Mobile Toggle Button */}
+      <button 
+        className="lg:hidden fixed bottom-4 right-4 z-50 p-3 bg-blue-600 text-white rounded-full shadow-lg dark:bg-pink-600"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-3 py-2.5 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-slate-300 transition-colors rounded-lg hover:bg-white/5"
       >
-        <span>{label}</span>
-        {isOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
+      {/* Sidebar overlay for mobile */}
       {isOpen && (
-        <div className="mt-1 space-y-0.5">
-          {options.map((opt) => {
-            const cfg = config[opt] || {};
-            const isActive = selected.includes(opt);
+        <div 
+          className="lg:hidden fixed inset-0 bg-slate-900/50 z-40 backdrop-blur-sm"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
+      {/* Sidebar */}
+      <aside className={`
+        glass-sidebar w-64 flex-shrink-0 fixed lg:static inset-y-0 left-0 z-40
+        transform transition-transform duration-300 ease-in-out lg:translate-x-0
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        flex flex-col
+      `}>
+        {/* Navigation Links */}
+        <div className="p-4 space-y-2 mt-16 lg:mt-0">
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 px-3">เมนูหลัก</div>
+          
+          {navItems.filter(item => item.show).map(item => {
+            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
+            
             return (
-              <label
-                key={opt}
-                className={`sidebar-checkbox ${isActive ? 'active' : ''}`}
-                htmlFor={`filter-${groupKey}-${opt}`}
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-200 font-bold ${
+                  isActive 
+                    ? 'bg-blue-100/70 text-blue-700 dark:bg-pink-500/20 dark:text-pink-400' 
+                    : 'text-slate-500 hover:text-slate-700 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800'
+                }`}
               >
-                <div className="relative flex-shrink-0">
-                  <input
-                    type="checkbox"
-                    id={`filter-${groupKey}-${opt}`}
-                    checked={isActive}
-                    onChange={() => onToggle(groupKey, opt)}
-                    className="sr-only"
-                  />
-                  <div className={`w-4 h-4 rounded flex items-center justify-center border transition-all duration-200 ${
-                    isActive
-                      ? 'bg-brand-600 border-brand-500'
-                      : 'bg-white/5 border-white/15'
-                  }`}>
-                    {isActive && (
-                      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                        <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    )}
-                  </div>
-                </div>
-
-                <span className="text-sm flex items-center gap-1.5">
-                  <span>{cfg.icon}</span>
-                  <span>{opt}</span>
-                </span>
-
-                {isActive && cfg.dot && (
-                  <span className={`ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-                )}
-              </label>
+                <Icon size={20} className={isActive ? 'text-blue-600 dark:text-pink-500' : ''} />
+                {item.name}
+              </Link>
             );
           })}
         </div>
-      )}
-    </div>
-  );
-}
-
-export default function Sidebar({ filters, onToggle, onClear }) {
-  const activeCount = Object.values(filters).flat().length;
-
-  return (
-    <aside className="glass-sidebar fixed left-0 top-16 bottom-0 w-64 overflow-y-auto hidden lg:flex flex-col z-40">
-      <div className="p-4 flex flex-col gap-4 flex-1">
-
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-brand-600/20 flex items-center justify-center">
-              <SlidersHorizontal size={13} className="text-brand-400" />
-            </div>
-            <span className="text-sm font-semibold text-slate-200">ตัวกรอง</span>
-          </div>
-          {activeCount > 0 && (
-            <button
-              onClick={onClear}
-              className="flex items-center gap-1 text-xs text-slate-500 hover:text-rose-400 transition-colors px-2 py-1 rounded-lg hover:bg-rose-500/10"
-            >
-              <X size={11} />
-              ล้าง ({activeCount})
-            </button>
-          )}
-        </div>
-
-        {/* Active filter pills summary */}
-        {activeCount > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {Object.entries(filters).map(([groupKey, vals]) =>
-              vals.map((val) => {
-                const cfgMap = groupKey === 'ownerType' ? TAG_CONFIG.owner_type
-                  : groupKey === 'itemType' ? TAG_CONFIG.item_type
-                  : TAG_CONFIG.level;
-                const cfg = cfgMap[val] || {};
-                return (
-                  <button
-                    key={`${groupKey}-${val}`}
-                    onClick={() => onToggle(groupKey, val)}
-                    className={`tag border text-xs ${cfg.bg} ${cfg.text} ${cfg.border} gap-1`}
-                  >
-                    {cfg.icon} {val}
-                    <X size={9} className="ml-0.5 opacity-60" />
-                  </button>
-                );
-              })
-            )}
-          </div>
-        )}
-
-        <div className="h-px bg-white/5" />
-
-        {/* Filter Groups */}
-        <div className="space-y-2">
-          <FilterGroup
-            groupKey="ownerType"
-            label={FILTER_OPTIONS.ownerType.label}
-            options={FILTER_OPTIONS.ownerType.options}
-            selected={filters.ownerType}
-            onToggle={onToggle}
-            config={TAG_CONFIG.owner_type}
-          />
-          <div className="h-px bg-white/5 mx-3" />
-          <FilterGroup
-            groupKey="itemType"
-            label={FILTER_OPTIONS.itemType.label}
-            options={FILTER_OPTIONS.itemType.options}
-            selected={filters.itemType}
-            onToggle={onToggle}
-            config={TAG_CONFIG.item_type}
-          />
-          <div className="h-px bg-white/5 mx-3" />
-          <FilterGroup
-            groupKey="level"
-            label={FILTER_OPTIONS.level.label}
-            options={FILTER_OPTIONS.level.options}
-            selected={filters.level}
-            onToggle={onToggle}
-            config={TAG_CONFIG.level}
-          />
-        </div>
-
-      </div>
-
-      {/* Footer stat */}
-      <div className="p-4 border-t border-white/5">
-        <div className="glass-card rounded-xl p-3 text-center">
-          <p className="text-[10px] text-slate-500 mb-1">เกียรติบัตรทั้งหมด</p>
-          <p className="text-xl font-bold gradient-text">2,847</p>
-          <p className="text-[10px] text-slate-500 mt-1">อัปเดตล่าสุด วันนี้</p>
-        </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

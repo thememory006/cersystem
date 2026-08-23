@@ -89,21 +89,21 @@ export const dummyCertificates = [
 // Tag color config
 export const TAG_CONFIG = {
   owner_type: {
-    "สถานศึกษา": { bg: "bg-cyan-500/15", text: "text-cyan-300", border: "border-cyan-500/30", dot: "bg-cyan-400", icon: "🏫" },
-    "ผู้บริหาร":  { bg: "bg-emerald-500/15", text: "text-emerald-300", border: "border-emerald-500/30", dot: "bg-emerald-400", icon: "👔" },
-    "ครู":        { bg: "bg-violet-500/15", text: "text-violet-300", border: "border-violet-500/30", dot: "bg-violet-400", icon: "👩‍🏫" },
-    "นักเรียน":  { bg: "bg-pink-500/15", text: "text-pink-300", border: "border-pink-500/30", dot: "bg-pink-400", icon: "🎓" },
+    "สถานศึกษา": { bg: "bg-pastel-blue", text: "text-blue-700", border: "border-blue-200", dot: "bg-blue-400", icon: "🏫" },
+    "ผู้บริหาร":  { bg: "bg-pastel-green", text: "text-green-700", border: "border-green-200", dot: "bg-green-400", icon: "👔" },
+    "ครู":        { bg: "bg-pastel-purple", text: "text-purple-700", border: "border-purple-200", dot: "bg-purple-400", icon: "👩‍🏫" },
+    "นักเรียน":  { bg: "bg-pastel-pink", text: "text-pink-700", border: "border-pink-200", dot: "bg-pink-400", icon: "👧👦" },
   },
   item_type: {
-    "อบรม/พัฒนาตนเอง":    { bg: "bg-blue-500/15", text: "text-blue-300", border: "border-blue-500/30", dot: "bg-blue-400", icon: "📚" },
-    "รางวัล/การแข่งขัน": { bg: "bg-amber-500/15", text: "text-amber-300", border: "border-amber-500/30", dot: "bg-amber-400", icon: "🏆" },
+    "อบรม/พัฒนาตนเอง":    { bg: "bg-pastel-orange", text: "text-orange-700", border: "border-orange-200", dot: "bg-orange-400", icon: "📚" },
+    "รางวัล/การแข่งขัน": { bg: "bg-pastel-yellow", text: "text-yellow-700", border: "border-yellow-200", dot: "bg-yellow-400", icon: "🌟" },
   },
   level: {
-    "สถานศึกษา":          { bg: "bg-slate-500/15", text: "text-slate-300", border: "border-slate-500/30", dot: "bg-slate-400", icon: "🏠" },
-    "เขตพื้นที่การศึกษา": { bg: "bg-teal-500/15", text: "text-teal-300", border: "border-teal-500/30", dot: "bg-teal-400", icon: "📍" },
-    "ภาค":                 { bg: "bg-orange-500/15", text: "text-orange-300", border: "border-orange-500/30", dot: "bg-orange-400", icon: "🗺️" },
-    "ประเทศ":              { bg: "bg-rose-500/15", text: "text-rose-300", border: "border-rose-500/30", dot: "bg-rose-400", icon: "🇹🇭" },
-    "นานาชาติ":            { bg: "bg-indigo-500/15", text: "text-indigo-300", border: "border-indigo-500/30", dot: "bg-indigo-400", icon: "🌏" },
+    "สถานศึกษา":          { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200", dot: "bg-slate-400", icon: "🏠" },
+    "เขตพื้นที่การศึกษา": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-200", dot: "bg-teal-400", icon: "🚌" },
+    "ภาค":                 { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-200", dot: "bg-orange-400", icon: "🗺️" },
+    "ประเทศ":              { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-200", dot: "bg-rose-400", icon: "🇹🇭" },
+    "นานาชาติ":            { bg: "bg-indigo-100", text: "text-indigo-700", border: "border-indigo-200", dot: "bg-indigo-400", icon: "🌍" },
   },
 };
 
