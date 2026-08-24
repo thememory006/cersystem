@@ -90,7 +90,7 @@ export default function EmbedPortfolioPage() {
       {/* Watermark/Footer */}
       <div className="mt-8 text-center">
         <a href="/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-blue-500 transition-colors uppercase tracking-widest">
-          ขับเคลื่อนโดย SchoolPort
+          ขับเคลื่อนโดย โรงเรียนอนุบาลเลย ฝ่ายเทคโนโลยีสารสนเทศ
         </a>
       </div>
       
