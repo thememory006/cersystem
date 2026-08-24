@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FolderHeart, CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { TAG_CONFIG } from '../data/certificates';
 
@@ -6,6 +6,14 @@ export default function DriveSettingsCard({ config }) {
   const [folderId, setFolderId] = useState(config.currentId || '');
   const [isTesting, setIsTesting] = useState(false);
   const [status, setStatus] = useState(config.currentId ? 'connected' : 'not_configured');
+
+  // Sync state when config updates after fetch
+  useEffect(() => {
+    if (config.currentId && !folderId) {
+      setFolderId(config.currentId);
+      setStatus('connected');
+    }
+  }, [config.currentId]);
   
   const typeConfig = TAG_CONFIG.owner_type[config.type] || TAG_CONFIG.owner_type["นักเรียน"];
 
