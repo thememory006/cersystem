@@ -94,8 +94,9 @@ export default function FeedPage() {
 
   // Stats calculation
   const totalCerts = certificates.length;
-  const teacherCerts = certificates.filter(c => c.owner_type === 'ครูผู้สอน').length;
+  const teacherCerts = certificates.filter(c => c.owner_type === 'ครู' || c.owner_type === 'ผู้บริหาร').length;
   const studentCerts = certificates.filter(c => c.owner_type === 'นักเรียน').length;
+  const totalLikes = certificates.reduce((sum, c) => sum + (c.likes || 0), 0);
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
@@ -122,7 +123,7 @@ export default function FeedPage() {
           </p>
           
           {/* Stats Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto px-4 mt-10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto px-4 mt-10">
             
             {/* Total */}
             <div className="relative group bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-amber-200 dark:border-amber-900/50 hover:border-amber-400 dark:hover:border-amber-700 transition-all hover:-translate-y-1 text-left overflow-hidden">
@@ -162,6 +163,22 @@ export default function FeedPage() {
                 </div>
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 transform group-hover:rotate-6 transition-transform">
                   <GraduationCap size={28} />
+                </div>
+              </div>
+            </div>
+
+            {/* Likes */}
+            <div className="relative group bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-pink-200 dark:border-pink-900/50 hover:border-pink-400 dark:hover:border-pink-700 transition-all hover:-translate-y-1 text-left overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-pink-400/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-150"></div>
+              <div className="relative z-10 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-extrabold text-pink-600 dark:text-pink-400 uppercase tracking-widest mb-1">ยอดถูกใจรวม</div>
+                  <div className="text-4xl font-black text-slate-800 dark:text-white">{totalLikes}</div>
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 text-white flex items-center justify-center shadow-lg shadow-pink-500/30 transform group-hover:rotate-6 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="animate-heart-pop">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
                 </div>
               </div>
             </div>

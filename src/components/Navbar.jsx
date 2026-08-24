@@ -5,6 +5,7 @@ import { useSettings } from '../context/SettingsContext';
 import { LogOut, Settings, User, Moon, Sun, Monitor, Folder } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { confirmLogout } from '../utils/alert';
+import ProfileModal from './ProfileModal';
 
 export default function Navbar() {
   const { user, loginWithGoogle, logout } = useAuth();
@@ -12,6 +13,7 @@ export default function Navbar() {
   const { logoUrl } = useSettings();
   
   const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const themeMenuRef = useRef(null);
 
   useEffect(() => {
@@ -77,15 +79,22 @@ export default function Navbar() {
                 <Folder size={20} />
               </Link>
               
-              <div className="text-right hidden md:block">
-                <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{user.name}</p>
-                <p className="text-xs text-blue-500 dark:text-pink-400 font-semibold uppercase">{user.role}</p>
-              </div>
-              <img 
-                src={user.avatar} 
-                alt="Profile" 
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-blue-200 dark:border-pink-500 shadow-sm"
-              />
+              <button 
+                onClick={() => setShowProfileModal(true)}
+                className="flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 p-1 pr-3 rounded-full transition-colors cursor-pointer group"
+                title="แก้ไขโปรไฟล์"
+              >
+                <img 
+                  src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=1d4ed8&color=fff`} 
+                  alt="Profile" 
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-blue-200 dark:border-pink-500 shadow-sm group-hover:border-blue-400 transition-colors"
+                  onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=1d4ed8&color=fff`; }}
+                />
+                <div className="text-left hidden md:block">
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors">{user.name}</p>
+                  <p className="text-xs text-blue-500 dark:text-pink-400 font-semibold uppercase">{user.role}</p>
+                </div>
+              </button>
               <button 
                 onClick={async () => {
                   if (await confirmLogout()) {
@@ -108,6 +117,10 @@ export default function Navbar() {
           )}
         </div>
       </div>
+      
+      {showProfileModal && (
+        <ProfileModal onClose={() => setShowProfileModal(false)} />
+      )}
     </nav>
   );
 }

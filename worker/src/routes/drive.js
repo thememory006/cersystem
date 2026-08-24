@@ -143,6 +143,7 @@ driveRoutes.post('/upload', async (c) => {
     const ocr_text   = formData.get('ocr_text') || '';
     const user_name  = formData.get('user_name') || 'ไม่ระบุ';
     const user_id    = formData.get('user_id')   || 'anonymous';
+    const user_avatar = formData.get('user_avatar') || '';
     const base64_image = formData.get('base64_image'); 
 
     console.log('Received formData keys:', [...formData.keys()]);
@@ -167,10 +168,10 @@ driveRoutes.post('/upload', async (c) => {
     await c.env.DB
       .prepare(`
         INSERT INTO certificates
-          (id, user_id, user_name, owner_type, item_type, level, ocr_text, image_url, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+          (id, user_id, user_name, user_avatar, owner_type, item_type, level, ocr_text, image_url, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
       `)
-      .bind(certId, user_id, user_name, owner_type, item_type, level, ocr_text, imageUrl)
+      .bind(certId, user_id, user_name, user_avatar, owner_type, item_type, level, ocr_text, imageUrl)
       .run();
 
     return c.json({

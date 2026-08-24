@@ -101,6 +101,7 @@ export default function UploadModal({ onClose, onUploadSuccess }) {
       data.append('description', formData.description);
       data.append('user_name', user.name);
       data.append('user_id', user.uid);
+      data.append('user_avatar', user.avatar || '');
       data.append('ocr_text', 'OCR Processing (Mock)');
 
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
