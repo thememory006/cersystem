@@ -22,6 +22,7 @@ export default function SettingsPage() {
   // Drive Config state
   const [driveConfig, setDriveConfig] = useState({});
   const [driveLoading, setDriveLoading] = useState(false);
+  const [serviceAccountEmail, setServiceAccountEmail] = useState('');
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,10 +56,17 @@ export default function SettingsPage() {
     setDriveLoading(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+      
       const res = await fetch(`${apiUrl}/api/drive/config`, { cache: 'no-store' });
       const data = await res.json();
       if (data.success && data.config) {
         setDriveConfig(data.config);
+      }
+
+      const saRes = await fetch(`${apiUrl}/api/drive/service-account`, { cache: 'no-store' });
+      const saData = await saRes.json();
+      if (saData.success && saData.email) {
+        setServiceAccountEmail(saData.email);
       }
     } catch (err) {
       console.error('Error fetching drive config:', err);
@@ -227,12 +235,22 @@ export default function SettingsPage() {
 
   const renderDriveTab = () => (
     <div className="space-y-6">
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700/50 p-4 rounded-2xl flex items-start gap-3">
-        <ShieldCheck className="text-yellow-500 shrink-0 mt-0.5" size={20} />
-        <div className="text-sm text-yellow-800 dark:text-yellow-200">
-          <strong>พื้นที่จัดเก็บแยกตามประเภท:</strong> ระบบจะอัปโหลดและดึงรูปเกียรติบัตรจากโฟลเดอร์ที่คุณกำหนดไว้ 
-          กรุณาตรวจสอบว่าโฟลเดอร์ปลายทางได้เปิดสิทธิ์ "แชร์สาธารณะ (Anyone with the link)" เรียบร้อยแล้ว
+      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700/50 p-4 rounded-2xl flex flex-col gap-2">
+        <div className="flex items-start gap-3">
+          <ShieldCheck className="text-yellow-500 shrink-0 mt-0.5" size={20} />
+          <div className="text-sm text-yellow-800 dark:text-yellow-200">
+            <strong>วิธีเชื่อมต่อกับ Google Drive ให้สำเร็จ:</strong><br/>
+            ระบบ (Service Account) จำเป็นต้องมีสิทธิ์ "Editor" ในโฟลเดอร์ปลายทาง เพื่อนำรูปไปบันทึก
+          </div>
         </div>
+        {serviceAccountEmail && (
+          <div className="ml-8 mt-2 bg-white dark:bg-slate-800 p-3 rounded-xl border border-yellow-200 dark:border-yellow-700">
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">ให้คุณนำอีเมลนี้ไปเพิ่มเป็น Editor (ผู้มีสิทธิ์แก้ไข) ในโฟลเดอร์ Drive ของคุณ:</p>
+            <code className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300 px-3 py-1.5 rounded-lg text-sm font-mono select-all block break-all">
+              {serviceAccountEmail}
+            </code>
+          </div>
+        )}
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

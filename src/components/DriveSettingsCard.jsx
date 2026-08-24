@@ -74,11 +74,11 @@ export default function DriveSettingsCard({ config }) {
 
   return (
     <div className="glass-card bg-white p-5 rounded-3xl border-4 border-white shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4">
         
-        {/* Left: Icon & Label */}
+        {/* Top: Icon & Label */}
         <div className="flex items-center gap-4">
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border-4 border-white shadow-sm ${typeConfig.bg}`}>
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border-4 border-white shadow-sm shrink-0 ${typeConfig.bg}`}>
             {typeConfig.icon}
           </div>
           <div>
@@ -89,8 +89,8 @@ export default function DriveSettingsCard({ config }) {
           </div>
         </div>
 
-        {/* Right: Input & Action */}
-        <div className="flex-1 max-w-md flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        {/* Bottom: Input & Action */}
+        <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full mt-2">
           <div className="relative flex-1">
             <FolderHeart className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-300 w-5 h-5" />
             <input 
@@ -105,7 +105,7 @@ export default function DriveSettingsCard({ config }) {
           <button 
             onClick={handleTest}
             disabled={!folderId || isTesting}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all border border-blue-200"
+            className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all border border-blue-200 shrink-0"
           >
             {isTesting ? <RefreshCw className="animate-spin w-4 h-4" /> : 'ทดสอบและบันทึก'}
           </button>

@@ -39,6 +39,22 @@ driveRoutes.get('/config', async (c) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// GET /api/drive/service-account
+// ดึงอีเมลของ Service Account ไปแสดงให้ User เพื่อเอาไปแชร์
+// ─────────────────────────────────────────────────────────────────────────────
+driveRoutes.get('/service-account', (c) => {
+  try {
+    if (!c.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+      return c.json({ success: false, error: 'ยังไม่ได้ตั้งค่า GOOGLE_SERVICE_ACCOUNT_JSON' }, 500);
+    }
+    const sa = JSON.parse(c.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+    return c.json({ success: true, email: sa.client_email });
+  } catch (err) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // PUT /api/drive/config
 // บันทึกหรืออัปเดต Folder ID สำหรับ owner_type หนึ่งอัน
 // Body: { owner_type: string, folder_id: string }
