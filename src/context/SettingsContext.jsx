@@ -33,6 +33,19 @@ export function SettingsProvider({ children }) {
     fetchSettings();
   }, [fetchSettings]);
 
+  // Update favicon dynamically when logoUrl changes
+  useEffect(() => {
+    if (logoUrl) {
+      let link = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      link.href = logoUrl;
+    }
+  }, [logoUrl]);
+
   const updateLogoUrl = async (newUrl) => {
     const trimmed = newUrl.trim();
     setLogoUrl(trimmed || '/logo.png'); // Optimistic UI update

@@ -2,10 +2,12 @@ import { useState, useMemo, useEffect } from 'react';
 import { TAG_CONFIG } from '../data/certificates';
 import Feed from '../components/Feed';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { Filter, X, Award, Users, GraduationCap } from 'lucide-react';
 
 export default function FeedPage() {
   const { user } = useAuth();
+  const { logoUrl } = useSettings();
   
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,9 +100,9 @@ export default function FeedPage() {
         <div className="relative z-10">
           <div className="flex justify-center mb-6 animate-bounce-slow">
             <img 
-              src="/logo.png" 
+              src={logoUrl} 
               alt="School Logo" 
-              className="w-28 h-28 object-contain drop-shadow-md bg-white rounded-full p-1" 
+              className="w-28 h-28 object-contain drop-shadow-md bg-white rounded-full p-1 border-4 border-blue-100 dark:border-slate-600" 
               onError={(e) => { e.target.onerror = null; e.target.src = "https://ui-avatars.com/api/?name=School&background=1d4ed8&color=fff"; }}
             />
           </div>
