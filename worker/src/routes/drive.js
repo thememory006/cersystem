@@ -124,6 +124,7 @@ driveRoutes.post('/upload', async (c) => {
     const owner_type = formData.get('owner_type');
     const item_type  = formData.get('item_type');
     const level      = formData.get('level');
+    const description = formData.get('description') || '';
     const ocr_text   = formData.get('ocr_text') || '';
     const user_name  = formData.get('user_name') || 'ไม่ระบุ';
     const user_id    = formData.get('user_id')   || 'anonymous';
@@ -171,6 +172,7 @@ driveRoutes.post('/upload', async (c) => {
       owner_type,
       item_type,
       level,
+      description,
       ocr_text,
       drive_image_id: imageResult.id,
       drive_image_url: imageResult.webViewLink,

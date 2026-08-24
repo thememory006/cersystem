@@ -121,6 +121,13 @@ export default function CertificateModal({ cert, onClose }) {
                 <InfoRow icon={<MapPin size={16} />} label="ระดับ" value={cert.level || '-'} />
               </div>
 
+              {cert.description && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
+                  <p className="text-xs font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider mb-2">รายละเอียดเพิ่มเติม</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{cert.description}</p>
+                </div>
+              )}
+
               {cert.ocr_text && (
                 <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">ข้อความในเกียรติบัตร</p>

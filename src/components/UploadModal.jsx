@@ -17,6 +17,7 @@ export default function UploadModal({ onClose, onUploadSuccess }) {
     owner_type: 'นักเรียน',
     item_type: 'รางวัล/การแข่งขัน',
     level: 'สถานศึกษา',
+    description: '',
   });
 
   const handleFileChange = (e) => {
@@ -50,6 +51,7 @@ export default function UploadModal({ onClose, onUploadSuccess }) {
       data.append('owner_type', formData.owner_type);
       data.append('item_type', formData.item_type);
       data.append('level', formData.level);
+      data.append('description', formData.description);
       data.append('user_name', user.name);
       data.append('user_id', user.uid);
       data.append('ocr_text', 'OCR Processing (Mock)');
@@ -197,6 +199,18 @@ export default function UploadModal({ onClose, onUploadSuccess }) {
                   <option key={key} value={key}>{key}</option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                รายละเอียดเพิ่มเติม <span className="text-slate-400 font-normal text-xs">(ไม่บังคับ)</span>
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                placeholder="อธิบายรายละเอียดผลงาน เช่น ชื่อรางวัล, งานที่เข้าร่วม, วันที่..."
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white min-h-[100px] resize-none"
+              ></textarea>
             </div>
           </div>
         </div>

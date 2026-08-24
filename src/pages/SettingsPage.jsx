@@ -18,6 +18,10 @@ export default function SettingsPage() {
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
 
   useEffect(() => {
     if (logoUrl) setInputLogoUrl(logoUrl);
@@ -109,6 +113,16 @@ export default function SettingsPage() {
     u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     u.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination Logic
+  useEffect(() => {
+    setCurrentPage(1); // Reset page when search changes
+  }, [searchQuery]);
+
+  const indexOfLastUser = currentPage * itemsPerPage;
+  const indexOfFirstUser = indexOfLastUser - itemsPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   const renderGeneralTab = () => (
     <div className="space-y-6">
@@ -250,7 +264,7 @@ export default function SettingsPage() {
                       {users.length === 0 ? 'ยังไม่มีสมาชิกในระบบ' : 'ไม่พบสมาชิกที่ค้นหา'}
                     </td>
                   </tr>
-                ) : filteredUsers.map(member => (
+                ) : currentUsers.map(member => (
                   <tr key={member.id} className="text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="py-4">
                       <div className="flex items-center gap-3">
@@ -316,6 +330,34 @@ export default function SettingsPage() {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6 px-2">
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  แสดง {indexOfFirstUser + 1} ถึง {Math.min(indexOfLastUser, filteredUsers.length)} จาก {filteredUsers.length} รายการ
+                </span>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300"
+                  >
+                    ก่อนหน้า
+                  </button>
+                  <div className="flex items-center px-2 text-sm font-bold text-slate-700 dark:text-slate-300">
+                    หน้า {currentPage} / {totalPages}
+                  </div>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300"
+                  >
+                    ถัดไป
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
