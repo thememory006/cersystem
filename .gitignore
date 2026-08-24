@@ -27,3 +27,6 @@ dist-ssr
 worker/.dev.vars
 worker/node_modules
 worker/dist
+
+worker/.wrangler/
+worker/package-lock.json
