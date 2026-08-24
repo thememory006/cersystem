@@ -3,8 +3,9 @@ import { FolderHeart, CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'luci
 import { TAG_CONFIG } from '../data/certificates';
 
 export default function DriveSettingsCard({ config }) {
-  const [folderId, setFolderId] = useState(config.folderId);
+  const [folderId, setFolderId] = useState(config.currentId || '');
   const [isTesting, setIsTesting] = useState(false);
+  const [status, setStatus] = useState(config.currentId ? 'connected' : 'not_configured');
   
   const typeConfig = TAG_CONFIG.owner_type[config.type] || TAG_CONFIG.owner_type["นักเรียน"];
 
@@ -20,9 +21,55 @@ export default function DriveSettingsCard({ config }) {
     }
   };
 
-  const handleTest = () => {
+  const handleTest = async () => {
+    if (!folderId || folderId.trim().length < 10) {
+      import('react-hot-toast').then(toast => toast.default.error('รูปแบบ Folder ID ไม่ถูกต้อง'));
+      return;
+    }
+
     setIsTesting(true);
-    setTimeout(() => setIsTesting(false), 1500); // Simulate API call
+    setStatus('testing');
+    
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+      
+      // 1. Test Folder Access
+      const testRes = await fetch(`${apiUrl}/api/drive/test/${folderId.trim()}`, { method: 'POST' });
+      const testData = await testRes.json();
+      
+      if (!testData.success) {
+        setStatus('error');
+        import('react-hot-toast').then(toast => toast.default.error('ไม่สามารถเข้าถึงแฟ้มได้ กรุณาตรวจสอบสิทธิ์การแชร์ (Anyone with the link)'));
+        setIsTesting(false);
+        return;
+      }
+
+      // 2. Save Config
+      let apiOwnerType = config.type;
+      if (apiOwnerType === 'ครูผู้สอน') apiOwnerType = 'ครู';
+
+      const saveRes = await fetch(`${apiUrl}/api/drive/config`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ owner_type: apiOwnerType, folder_id: folderId.trim() })
+      });
+      const saveData = await saveRes.json();
+
+      if (saveData.success) {
+        setStatus('connected');
+        import('react-hot-toast').then(toast => toast.default.success(`เชื่อมต่อแฟ้มสำหรับ "${config.type}" สำเร็จ!`));
+      } else {
+        setStatus('error');
+        import('react-hot-toast').then(toast => toast.default.error('ทดสอบผ่านแต่บันทึกล้มเหลว: ' + saveData.error));
+      }
+
+    } catch (err) {
+      console.error('Error testing/saving drive:', err);
+      setStatus('error');
+      import('react-hot-toast').then(toast => toast.default.error('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
+    } finally {
+      setIsTesting(false);
+    }
   };
 
   return (
@@ -38,7 +85,7 @@ export default function DriveSettingsCard({ config }) {
             <h3 className="font-bold text-slate-700 text-base mb-1">
               แฟ้มของ <span className={typeConfig.text}>{config.type}</span>
             </h3>
-            {getStatusDisplay(config.status)}
+            {getStatusDisplay(status)}
           </div>
         </div>
 
@@ -60,7 +107,7 @@ export default function DriveSettingsCard({ config }) {
             disabled={!folderId || isTesting}
             className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all border border-blue-200"
           >
-            {isTesting ? <RefreshCw className="animate-spin w-4 h-4" /> : 'ทดสอบ'}
+            {isTesting ? <RefreshCw className="animate-spin w-4 h-4" /> : 'ทดสอบและบันทึก'}
           </button>
         </div>
 

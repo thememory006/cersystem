@@ -19,6 +19,10 @@ export default function SettingsPage() {
   const [usersLoading, setUsersLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
+  // Drive Config state
+  const [driveConfig, setDriveConfig] = useState({});
+  const [driveLoading, setDriveLoading] = useState(false);
+  
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
@@ -47,9 +51,27 @@ export default function SettingsPage() {
     }
   };
 
+  const fetchDriveConfig = async () => {
+    setDriveLoading(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+      const res = await fetch(`${apiUrl}/api/drive/config`, { cache: 'no-store' });
+      const data = await res.json();
+      if (data.success && data.config) {
+        setDriveConfig(data.config);
+      }
+    } catch (err) {
+      console.error('Error fetching drive config:', err);
+    } finally {
+      setDriveLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'members') {
       fetchUsers();
+    } else if (activeTab === 'drive') {
+      fetchDriveConfig();
     }
   }, [activeTab]);
 
@@ -103,10 +125,10 @@ export default function SettingsPage() {
 
   // Mock data for Drive Folder IDs
   const driveConfigs = [
-    { type: 'สถานศึกษา', name: 'โฟลเดอร์สำหรับผู้บริหาร / สถานศึกษา', currentId: '' },
-    { type: 'ผู้บริหาร', name: 'โฟลเดอร์สำหรับผู้บริหาร', currentId: '' },
-    { type: 'ครูผู้สอน', name: 'โฟลเดอร์สำหรับครูผู้สอน', currentId: '' },
-    { type: 'นักเรียน', name: 'โฟลเดอร์สำหรับนักเรียน', currentId: '' },
+    { type: 'สถานศึกษา', name: 'โฟลเดอร์สำหรับผู้บริหาร / สถานศึกษา', currentId: driveConfig['สถานศึกษา']?.folder_id || '' },
+    { type: 'ผู้บริหาร', name: 'โฟลเดอร์สำหรับผู้บริหาร', currentId: driveConfig['ผู้บริหาร']?.folder_id || '' },
+    { type: 'ครูผู้สอน', name: 'โฟลเดอร์สำหรับครูผู้สอน', currentId: driveConfig['ครูผู้สอน']?.folder_id || driveConfig['ครู']?.folder_id || '' },
+    { type: 'นักเรียน', name: 'โฟลเดอร์สำหรับนักเรียน', currentId: driveConfig['นักเรียน']?.folder_id || '' },
   ];
 
   const filteredUsers = users.filter(u =>
