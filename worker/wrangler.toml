@@ -7,7 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "schoolport-db"
-database_id   = "YOUR_D1_DATABASE_ID"      # <-- เปลี่ยนเป็น ID จริงหลัง wrangler d1 create
+database_id   = "fb9baf03-2e51-4d6a-b301-67959dd43af8"
 
 # ─── Cloudflare R2 (Object Storage) ────────────────────────────────────────────
 [[r2_buckets]]
