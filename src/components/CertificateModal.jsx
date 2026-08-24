@@ -1,18 +1,23 @@
-import { X, Download, User, Calendar, Award, MapPin, Heart } from 'lucide-react';
+import { X, Download, User, Calendar, Award, MapPin, Heart, Edit, Trash2 } from 'lucide-react';
 import { TAG_CONFIG } from '../data/certificates';
 import { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
+import EditModal from './EditModal';
 
-export default function CertificateModal({ cert, onClose }) {
+export default function CertificateModal({ cert, onClose, onUpdate, onDelete }) {
+  const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(cert?.likes ?? 0);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, []);
 
-  const handleLike = (e) => {
+  const handleLike = async (e) => {
     if (!isLiked) {
       setIsLiked(true);
       setLikes(prev => prev + 1);
@@ -22,17 +27,52 @@ export default function CertificateModal({ cert, onClose }) {
       const y = (rect.top + rect.height / 2) / window.innerHeight;
       
       confetti({
-        particleCount: 50,
-        spread: 70,
+        particleCount: 20,
+        spread: 50,
         origin: { x, y },
-        colors: ['#ef4444', '#f472b6', '#3b82f6'],
+        colors: ['#ef4444', '#f43f5e', '#fb7185'],
+        shapes: ['circle'],
         disableForReducedMotion: true,
         zIndex: 300,
-        scalar: 1.2
+        scalar: 0.8,
+        gravity: 1.5,
+        ticks: 50
       });
     } else {
       setIsLiked(false);
       setLikes(prev => prev - 1);
+    }
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+      await fetch(`${apiUrl}/api/certificates/${cert.id}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isLike: !isLiked })
+      });
+    } catch (err) {
+      console.error('Failed to update like:', err);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผลงานนี้?')) {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+        const res = await fetch(`${apiUrl}/api/certificates/${cert.id}?userId=${user.uid}`, {
+          method: 'DELETE',
+        });
+        const data = await res.json();
+        if (data.success) {
+          toast.success('ลบผลงานสำเร็จ');
+          if (onDelete) onDelete(cert.id);
+          onClose();
+        } else {
+          toast.error(data.error || 'ไม่สามารถลบผลงานได้');
+        }
+      } catch (err) {
+        toast.error('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      }
     }
   };
 
@@ -121,19 +161,19 @@ export default function CertificateModal({ cert, onClose }) {
                 <InfoRow icon={<MapPin size={16} />} label="ระดับ" value={cert.level || '-'} />
               </div>
 
-              {cert.description && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
-                  <p className="text-xs font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider mb-2">รายละเอียดเพิ่มเติม</p>
-                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{cert.description}</p>
-                </div>
-              )}
-
-              {cert.ocr_text && (
-                <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">ข้อความในเกียรติบัตร</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-4">{cert.ocr_text}</p>
-                </div>
-              )}
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">ข้อความและรายละเอียดในเกียรติบัตร</p>
+                {cert.description && (
+                  <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap mb-3 pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <span className="font-semibold text-blue-500">รายละเอียด:</span> {cert.description}
+                  </p>
+                )}
+                {cert.ocr_text && (
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-4">
+                    {cert.ocr_text}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 flex-shrink-0">
@@ -153,17 +193,46 @@ export default function CertificateModal({ cert, onClose }) {
                   {cert.views ?? 0}
                 </span>
               </div>
-              <button
-                onClick={onClose}
-                className="px-5 py-2 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-              >
-                ปิด
-              </button>
+              <div className="flex items-center gap-2">
+                {user && user.uid === cert.user_id && (
+                  <>
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="px-3 py-2 rounded-xl text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors flex items-center gap-1.5"
+                    >
+                      <Edit size={16} /> แก้ไข
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="px-3 py-2 rounded-xl text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors flex items-center gap-1.5"
+                    >
+                      <Trash2 size={16} /> ลบ
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={onClose}
+                  className="px-5 py-2 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  ปิด
+                </button>
+              </div>
             </div>
           </div>
 
         </div>
       </div>
+      
+      {isEditing && (
+        <EditModal 
+          cert={cert} 
+          onClose={() => setIsEditing(false)} 
+          onUpdate={(updatedData) => {
+            if (onUpdate) onUpdate({ ...cert, ...updatedData });
+            setIsEditing(false);
+          }}
+        />
+      )}
     </div>
   );
 }

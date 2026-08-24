@@ -9,29 +9,42 @@ export default function CertCard({ cert, style, onClick, viewMode = 'grid' }) {
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(cert.likes ?? 0);
 
-  const handleLike = (e) => {
+  const handleLike = async (e) => {
     e.stopPropagation(); // prevent modal opening
-    if (!isLiked) {
-      setIsLiked(true);
-      setLikes(prev => prev + 1);
-      
-      // Heart burst confetti effect
+    
+    const newIsLiked = !isLiked;
+    setIsLiked(newIsLiked);
+    setLikes(prev => newIsLiked ? prev + 1 : prev - 1);
+
+    if (newIsLiked) {
+      // Mini heart pop effect
       const rect = e.currentTarget.getBoundingClientRect();
       const x = (rect.left + rect.width / 2) / window.innerWidth;
       const y = (rect.top + rect.height / 2) / window.innerHeight;
       
       confetti({
-        particleCount: 40,
-        spread: 60,
+        particleCount: 20,
+        spread: 50,
         origin: { x, y },
-        colors: ['#ef4444', '#f472b6', '#3b82f6'],
+        colors: ['#ef4444', '#f43f5e', '#fb7185'],
+        shapes: ['circle'],
         disableForReducedMotion: true,
         zIndex: 100,
-        scalar: 0.8
+        scalar: 0.6,
+        gravity: 1.5,
+        ticks: 50
       });
-    } else {
-      setIsLiked(false);
-      setLikes(prev => prev - 1);
+    }
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+      await fetch(`${apiUrl}/api/certificates/${cert.id}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isLike: newIsLiked })
+      });
+    } catch (err) {
+      console.error('Failed to update like:', err);
     }
   };
 

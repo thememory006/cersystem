@@ -3,16 +3,33 @@ import CertCard from './CertCard';
 import CertificateModal from './CertificateModal';
 import { Loader2, SearchX, LayoutGrid, List } from 'lucide-react';
 
-export default function Feed({ certificates, isLoading }) {
+export default function Feed({ certificates, isLoading, onUpdateCert, onDeleteCert }) {
   const [activeTab, setActiveTab] = useState('ล่าสุด');
   const [selectedCert, setSelectedCert] = useState(null);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-blue-400 dark:text-pink-500 animate-pulse">
-        <Loader2 className="animate-spin mb-4" size={48} />
-        <p className="font-bold text-lg">กำลังโหลดผลงาน...</p>
+      <div className="w-full">
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
+          <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl h-10 w-48 animate-pulse" />
+          <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl h-10 w-20 animate-pulse" />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+          {[...Array(12)].map((_, i) => (
+            <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col animate-pulse">
+              <div className="w-full aspect-[4/3] bg-slate-200 dark:bg-slate-700" />
+              <div className="p-3 space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0" />
+                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24" />
+                </div>
+                <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded w-full" />
+                <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded w-2/3" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -93,11 +110,18 @@ export default function Feed({ certificates, isLoading }) {
         ))}
       </div>
 
-      {/* Modal */}
       {selectedCert && (
         <CertificateModal 
           cert={selectedCert} 
           onClose={() => setSelectedCert(null)} 
+          onUpdate={(updatedData) => {
+            if (onUpdateCert) onUpdateCert(updatedData);
+            setSelectedCert({ ...selectedCert, ...updatedData });
+          }}
+          onDelete={(id) => {
+            if (onDeleteCert) onDeleteCert(id);
+            setSelectedCert(null);
+          }}
         />
       )}
     </div>

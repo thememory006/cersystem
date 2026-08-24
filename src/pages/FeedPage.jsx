@@ -35,6 +35,14 @@ export default function FeedPage() {
     fetchCerts();
   }, []);
 
+  const handleUpdateCert = (updatedCert) => {
+    setCertificates(prev => prev.map(c => c.id === updatedCert.id ? { ...c, ...updatedCert } : c));
+  };
+
+  const handleDeleteCert = (id) => {
+    setCertificates(prev => prev.filter(c => c.id !== id));
+  };
+
   const handleFilterToggle = (groupKey, value) => {
     setFilters(prev => {
       const current = prev[groupKey];
@@ -198,7 +206,12 @@ export default function FeedPage() {
 
       {/* Main Feed Content */}
       <div className="w-full">
-        <Feed certificates={filtered} isLoading={loading} />
+        <Feed 
+          certificates={filtered} 
+          isLoading={loading} 
+          onUpdateCert={handleUpdateCert}
+          onDeleteCert={handleDeleteCert}
+        />
       </div>
 
     </div>
