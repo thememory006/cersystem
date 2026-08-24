@@ -1,34 +1,107 @@
 import { useState, useEffect } from 'react';
-import { Type, Users, Database, ShieldCheck, Check, Search, Settings, Image as ImageIcon, Save } from 'lucide-react';
+import { Type, Users, Database, ShieldCheck, Check, Search, Settings, Image as ImageIcon, Save, Trash2, ShieldAlert, ShieldOff } from 'lucide-react';
 import DriveSettingsCard from '../components/DriveSettingsCard';
 import { useFont, FONT_OPTIONS } from '../context/FontContext';
 import { useSettings } from '../context/SettingsContext';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general');
   const { font, setFont } = useFont();
   const { logoUrl, updateLogoUrl } = useSettings();
+  const { user } = useAuth();
   const [inputLogoUrl, setInputLogoUrl] = useState('');
+
+  // Users state
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (logoUrl) setInputLogoUrl(logoUrl);
   }, [logoUrl]);
 
+  // Fetch all users from backend
+  const fetchUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+      const res = await fetch(`${apiUrl}/api/users`, { cache: 'no-store' });
+      const data = await res.json();
+      if (data.success) {
+        setUsers(data.users);
+      } else {
+        toast.error('ไม่สามารถโหลดรายชื่อสมาชิกได้');
+      }
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'members') {
+      fetchUsers();
+    }
+  }, [activeTab]);
+
+  const handleChangeRole = async (userId, newRole) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+      const res = await fetch(`${apiUrl}/api/users/${userId}/role`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: newRole }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`เปลี่ยนสิทธิ์เรียบร้อยแล้ว`);
+        fetchUsers();
+      } else {
+        toast.error('ไม่สามารถเปลี่ยนสิทธิ์ได้');
+      }
+    } catch (err) {
+      toast.error('เกิดข้อผิดพลาด');
+    }
+  };
+
+  const handleDeleteUser = async (userId, userName) => {
+    if (!confirm(`ยืนยันการลบผู้ใช้ "${userName}"?`)) return;
+    // ไม่อนุญาตลบตัวเอง
+    if (userId === user?.uid) {
+      toast.error('ไม่สามารถลบบัญชีของตัวเองได้');
+      return;
+    }
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+      const res = await fetch(`${apiUrl}/api/users/${userId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('ลบผู้ใช้เรียบร้อยแล้ว');
+        fetchUsers();
+      } else {
+        toast.error('ไม่สามารถลบผู้ใช้ได้');
+      }
+    } catch (err) {
+      toast.error('เกิดข้อผิดพลาด');
+    }
+  };
+
   // Mock data for Drive Folder IDs
   const driveConfigs = [
-    { type: 'สถานศึกษา', name: 'โฟลเดอร์สำหรับผู้บริหาร / สถานศึกษา', currentId: '1A2b3C4d5E6f7G8h9I0j' },
-    { type: 'ผู้บริหาร', name: 'โฟลเดอร์สำหรับผู้บริหาร', currentId: '0J9i8H7g6F5e4D3c2B1a' },
-    { type: 'ครูผู้สอน', name: 'โฟลเดอร์สำหรับครูผู้สอน', currentId: '2X3y4Z5w6V7u8T9s0R' },
-    { type: 'นักเรียน', name: 'โฟลเดอร์สำหรับนักเรียน', currentId: 'aB1cD2eF3gH4iJ5kL6' },
+    { type: 'สถานศึกษา', name: 'โฟลเดอร์สำหรับผู้บริหาร / สถานศึกษา', currentId: '' },
+    { type: 'ผู้บริหาร', name: 'โฟลเดอร์สำหรับผู้บริหาร', currentId: '' },
+    { type: 'ครูผู้สอน', name: 'โฟลเดอร์สำหรับครูผู้สอน', currentId: '' },
+    { type: 'นักเรียน', name: 'โฟลเดอร์สำหรับนักเรียน', currentId: '' },
   ];
 
-  // Mock member data
-  const mockMembers = [
-    { id: 1, name: 'สมชาย รักเรียน', email: 'somchai@example.com', role: 'user', status: 'approved' },
-    { id: 2, name: 'ครูใจดี มีเมตตา', email: 'kru.jaidee@example.com', role: 'user', status: 'pending' },
-    { id: 3, name: 'thememory', email: 'thememory006@gmail.com', role: 'admin', status: 'approved' },
-  ];
+  const filteredUsers = users.filter(u =>
+    u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderGeneralTab = () => (
     <div className="space-y-6">
@@ -40,7 +113,7 @@ export default function SettingsPage() {
           โลโก้สถานศึกษา (Logo URL)
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-          ระบุ URL ของรูปภาพโลโก้ที่จะแสดงบนแท็บนำทาง (Navbar)
+          ระบุ URL ของรูปภาพโลโก้ที่จะแสดงบนแท็บนำทาง (Navbar) — รองรับ URL รูปภาพโดยตรงเท่านั้น
         </p>
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm border-2 border-blue-100 dark:border-slate-600 overflow-hidden shrink-0">
@@ -61,15 +134,18 @@ export default function SettingsPage() {
             />
           </div>
           <button 
-            onClick={() => {
-              updateLogoUrl(inputLogoUrl);
-              toast.success('อัปเดตโลโก้เรียบร้อยแล้ว');
+            onClick={async () => {
+              await updateLogoUrl(inputLogoUrl);
+              toast.success('อัปเดตโลโก้เรียบร้อยแล้ว ✅');
             }}
             className="btn-primary py-2.5 px-6 flex items-center gap-2 whitespace-nowrap"
           >
             <Save size={18} /> บันทึกโลโก้
           </button>
         </div>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mt-3">
+          💡 หากใช้ Google Drive: ให้เปิดไฟล์รูป → แชร์ → "ทุกคนที่มีลิงก์" → แล้วแปลง URL เป็น <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded">https://drive.google.com/uc?export=view&id=FILE_ID</code>
+        </p>
       </div>
 
       <div className="glass-card p-6 border-2 border-white dark:border-slate-700">
@@ -130,69 +206,111 @@ export default function SettingsPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
             <Users size={20} className="text-pink-500" />
-            รายชื่อสมาชิก
+            รายชื่อสมาชิก ({users.length} คน)
           </h3>
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input 
               type="text" 
               placeholder="ค้นหาสมาชิก..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b-2 border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
-                <th className="pb-3 font-bold">ชื่อ-นามสกุล</th>
-                <th className="pb-3 font-bold">อีเมล</th>
-                <th className="pb-3 font-bold">บทบาท</th>
-                <th className="pb-3 font-bold">สถานะ</th>
-                <th className="pb-3 font-bold text-right">จัดการ</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-              {mockMembers.map(member => (
-                <tr key={member.id} className="text-sm">
-                  <td className="py-4 font-semibold text-slate-800 dark:text-slate-200">{member.name}</td>
-                  <td className="py-4 text-slate-500 dark:text-slate-400">{member.email}</td>
-                  <td className="py-4">
-                    <span className={`px-2 py-1 rounded-lg text-xs font-bold ${
-                      member.role === 'admin' 
-                        ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300' 
-                        : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-                    }`}>
-                      {member.role.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="py-4">
-                    {member.status === 'approved' ? (
-                      <span className="text-green-600 dark:text-green-400 flex items-center gap-1 font-bold text-xs"><Check size={14}/> อนุมัติแล้ว</span>
-                    ) : (
-                      <span className="text-orange-500 dark:text-orange-400 font-bold text-xs flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span> รอยืนยัน
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-4 text-right">
-                    {member.status === 'pending' && (
-                      <button className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors font-bold shadow-sm">
-                        อนุมัติ
-                      </button>
-                    )}
-                    {member.status === 'approved' && member.role !== 'admin' && (
-                      <button className="text-xs border border-slate-200 text-slate-500 px-3 py-1.5 rounded-lg hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors font-bold ml-2">
-                        แก้ไข
-                      </button>
-                    )}
-                  </td>
+        {usersLoading ? (
+          <div className="flex justify-center items-center py-12 text-slate-400">
+            <span>กำลังโหลดข้อมูล...</span>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b-2 border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                  <th className="pb-3 font-bold">สมาชิก</th>
+                  <th className="pb-3 font-bold">อีเมล</th>
+                  <th className="pb-3 font-bold">บทบาท</th>
+                  <th className="pb-3 font-bold">เข้าใช้ล่าสุด</th>
+                  <th className="pb-3 font-bold text-right">จัดการ</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-slate-400">
+                      {users.length === 0 ? 'ยังไม่มีสมาชิกในระบบ' : 'ไม่พบสมาชิกที่ค้นหา'}
+                    </td>
+                  </tr>
+                ) : filteredUsers.map(member => (
+                  <tr key={member.id} className="text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="py-4">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={member.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name || 'U')}&background=1d4ed8&color=fff`}
+                          alt={member.name}
+                          className="w-9 h-9 rounded-full border-2 border-slate-200 dark:border-slate-600"
+                          onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=U&background=475569&color=fff`; }}
+                        />
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">{member.name || '(ไม่ระบุชื่อ)'}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 text-slate-500 dark:text-slate-400 text-xs">{member.email}</td>
+                    <td className="py-4">
+                      <span className={`px-2 py-1 rounded-lg text-xs font-bold ${
+                        member.role === 'admin' 
+                          ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300' 
+                          : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                      }`}>
+                        {member.role === 'admin' ? '👑 Admin' : '👤 User'}
+                      </span>
+                    </td>
+                    <td className="py-4 text-slate-400 dark:text-slate-500 text-xs">
+                      {member.last_login ? new Date(member.last_login).toLocaleDateString('th-TH') : '-'}
+                    </td>
+                    <td className="py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {/* ไม่แสดงปุ่มจัดการตัวเอง */}
+                        {member.id !== user?.uid && (
+                          <>
+                            {member.role === 'user' ? (
+                              <button
+                                onClick={() => handleChangeRole(member.id, 'admin')}
+                                title="เลื่อนเป็น Admin"
+                                className="p-1.5 text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
+                              >
+                                <ShieldAlert size={16} />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleChangeRole(member.id, 'user')}
+                                title="ลดเป็น User"
+                                className="p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                              >
+                                <ShieldOff size={16} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteUser(member.id, member.name)}
+                              title="ลบผู้ใช้"
+                              className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </>
+                        )}
+                        {member.id === user?.uid && (
+                          <span className="text-xs text-slate-400 italic">บัญชีของคุณ</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -2,8 +2,19 @@ import { Hono } from 'hono';
 
 export const usersRoutes = new Hono();
 
-// POST /api/users/sync
-// Sync Firebase user to D1 and return role
+// GET /api/users — ดึงรายชื่อผู้ใช้ทั้งหมด (Admin Only)
+usersRoutes.get('/', async (c) => {
+  try {
+    const { results } = await c.env.DB
+      .prepare('SELECT id, email, name, avatar_url, role, created_at, last_login FROM users ORDER BY created_at DESC')
+      .all();
+    return c.json({ success: true, users: results });
+  } catch (err) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
+// POST /api/users/sync — Sync Firebase user to D1 and return role
 usersRoutes.post('/sync', async (c) => {
   try {
     const body = await c.req.json();
@@ -32,6 +43,38 @@ usersRoutes.post('/sync', async (c) => {
       .run();
 
     return c.json({ success: true, user: { id, email, name, avatar_url, role } });
+  } catch (err) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
+// PUT /api/users/:id/role — เปลี่ยน role ของผู้ใช้ (Admin Only)
+usersRoutes.put('/:id/role', async (c) => {
+  try {
+    const { id } = c.req.param();
+    const { role } = await c.req.json();
+
+    if (!['admin', 'user'].includes(role)) {
+      return c.json({ success: false, error: 'Invalid role' }, 400);
+    }
+
+    await c.env.DB
+      .prepare('UPDATE users SET role = ? WHERE id = ?')
+      .bind(role, id)
+      .run();
+
+    return c.json({ success: true, message: 'Role updated' });
+  } catch (err) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
+// DELETE /api/users/:id — ลบผู้ใช้ (Admin Only)
+usersRoutes.delete('/:id', async (c) => {
+  try {
+    const { id } = c.req.param();
+    await c.env.DB.prepare('DELETE FROM users WHERE id = ?').bind(id).run();
+    return c.json({ success: true, message: 'User deleted' });
   } catch (err) {
     return c.json({ success: false, error: err.message }, 500);
   }
