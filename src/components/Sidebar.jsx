@@ -14,6 +14,11 @@ export default function Sidebar() {
     { name: 'ตั้งค่าระบบ', path: '/settings', icon: Settings, show: user?.role === 'admin' },
   ];
 
+  // ถ้าไม่ใช่แอดมิน ไม่ต้องแสดง Sidebar เลย ตามที่ผู้ใช้ต้องการ
+  if (user?.role !== 'admin') {
+    return null;
+  }
+
   return (
     <>
       {/* Mobile Toggle Button */}

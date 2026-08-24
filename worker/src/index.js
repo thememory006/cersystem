@@ -12,9 +12,8 @@ const app = new Hono();
 app.use('*', logger());
 
 app.use('*', cors({
-  origin: (origin, c) => {
-    const allowed = c.env.CORS_ORIGIN || 'http://localhost:5173';
-    return origin === allowed ? origin : null;
+  origin: (origin) => {
+    return origin; // อนุญาตทุกโดเมน (เพื่อให้ใช้ XAMPP localhost ได้)
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],

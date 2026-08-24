@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSettings } from '../context/SettingsContext';
-import { LogOut, Settings, User, Moon, Sun, Monitor } from 'lucide-react';
+import { LogOut, Settings, User, Moon, Sun, Monitor, Folder } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { confirmLogout } from '../utils/alert';
 
@@ -68,6 +68,15 @@ export default function Navbar() {
           {/* Auth Section */}
           {user ? (
             <div className="flex items-center gap-3 pl-3 sm:pl-4 border-l-2 border-dashed border-blue-100 dark:border-slate-700">
+              {/* My Portfolio Link (shown when sidebar is hidden) */}
+              <Link 
+                to="/my-portfolio" 
+                className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:text-pink-400 dark:hover:bg-slate-800 rounded-xl transition-all"
+                title="แฟ้มผลงานของฉัน"
+              >
+                <Folder size={20} />
+              </Link>
+              
               <div className="text-right hidden md:block">
                 <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{user.name}</p>
                 <p className="text-xs text-blue-500 dark:text-pink-400 font-semibold uppercase">{user.role}</p>
