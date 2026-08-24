@@ -114,22 +114,50 @@ export default function FeedPage() {
           </p>
           
           {/* Stats Bar */}
-          <div className="grid grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur border border-white dark:border-slate-700 rounded-2xl p-4 shadow-sm hover:scale-105 transition-transform">
-              <div className="flex justify-center mb-2"><Award className="text-blue-500 dark:text-pink-400" size={28}/></div>
-              <div className="text-2xl font-black text-slate-800 dark:text-white">{totalCerts}</div>
-              <div className="text-xs font-bold text-slate-500 dark:text-slate-400">ผลงานทั้งหมด</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto px-4 mt-10">
+            
+            {/* Total */}
+            <div className="relative group bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-amber-200 dark:border-amber-900/50 hover:border-amber-400 dark:hover:border-amber-700 transition-all hover:-translate-y-1 text-left overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-150"></div>
+              <div className="relative z-10 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-1">ผลงานทั้งหมด</div>
+                  <div className="text-4xl font-black text-slate-800 dark:text-white">{totalCerts}</div>
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 transform group-hover:rotate-6 transition-transform">
+                  <Award size={28} />
+                </div>
+              </div>
             </div>
-            <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur border border-white dark:border-slate-700 rounded-2xl p-4 shadow-sm hover:scale-105 transition-transform">
-              <div className="flex justify-center mb-2"><Users className="text-blue-500 dark:text-pink-400" size={28}/></div>
-              <div className="text-2xl font-black text-slate-800 dark:text-white">{teacherCerts}</div>
-              <div className="text-xs font-bold text-slate-500 dark:text-slate-400">ผลงานคุณครู</div>
+
+            {/* Teachers */}
+            <div className="relative group bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-purple-200 dark:border-purple-900/50 hover:border-purple-400 dark:hover:border-purple-700 transition-all hover:-translate-y-1 text-left overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-150"></div>
+              <div className="relative z-10 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-extrabold text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1">ผลงานคุณครู</div>
+                  <div className="text-4xl font-black text-slate-800 dark:text-white">{teacherCerts}</div>
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-purple-500/30 transform group-hover:rotate-6 transition-transform">
+                  <Users size={28} />
+                </div>
+              </div>
             </div>
-            <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur border border-white dark:border-slate-700 rounded-2xl p-4 shadow-sm hover:scale-105 transition-transform">
-              <div className="flex justify-center mb-2"><GraduationCap className="text-blue-500 dark:text-pink-400" size={28}/></div>
-              <div className="text-2xl font-black text-slate-800 dark:text-white">{studentCerts}</div>
-              <div className="text-xs font-bold text-slate-500 dark:text-slate-400">ผลงานนักเรียน</div>
+
+            {/* Students */}
+            <div className="relative group bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-emerald-200 dark:border-emerald-900/50 hover:border-emerald-400 dark:hover:border-emerald-700 transition-all hover:-translate-y-1 text-left overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-150"></div>
+              <div className="relative z-10 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">ผลงานนักเรียน</div>
+                  <div className="text-4xl font-black text-slate-800 dark:text-white">{studentCerts}</div>
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 transform group-hover:rotate-6 transition-transform">
+                  <GraduationCap size={28} />
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
       </div>
