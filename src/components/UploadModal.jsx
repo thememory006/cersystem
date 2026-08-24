@@ -32,6 +32,47 @@ export default function UploadModal({ onClose, onUploadSuccess }) {
     }
   };
 
+  const compressImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Max dimension 1200px
+          const MAX_SIZE = 1200;
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Compress to JPEG with 0.7 quality
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
   const handleUpload = async () => {
     if (!file) {
       toast.error('กรุณาเลือกรูปภาพเกียรติบัตร');
@@ -46,8 +87,14 @@ export default function UploadModal({ onClose, onUploadSuccess }) {
     setLoading(true);
 
     try {
+      // 1. บีบอัดรูปภาพ
+      toast.loading('กำลังบีบอัดรูปภาพ...', { id: 'upload-toast' });
+      const base64Image = await compressImage(file);
+
+      // 2. ส่งข้อมูลไป Backend
+      toast.loading('กำลังอัปโหลดไปยังระบบ...', { id: 'upload-toast' });
       const data = new FormData();
-      data.append('image', file);
+      data.append('base64_image', base64Image);
       data.append('owner_type', formData.owner_type);
       data.append('item_type', formData.item_type);
       data.append('level', formData.level);
@@ -65,15 +112,15 @@ export default function UploadModal({ onClose, onUploadSuccess }) {
       const result = await res.json();
       
       if (result.success) {
-        toast.success('อัปโหลดผลงานสำเร็จ! 🎉');
+        toast.success('อัปโหลดผลงานสำเร็จ! 🎉', { id: 'upload-toast' });
         if (onUploadSuccess) onUploadSuccess(result.data);
         onClose();
       } else {
-        toast.error('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่ทราบสาเหตุ'));
+        toast.error('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่ทราบสาเหตุ'), { id: 'upload-toast' });
       }
     } catch (error) {
       console.error('Upload Error:', error);
-      toast.error('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+      toast.error('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', { id: 'upload-toast' });
     } finally {
       setLoading(false);
     }

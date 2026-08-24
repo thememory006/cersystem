@@ -58,8 +58,18 @@ INSERT OR IGNORE INTO drive_config (owner_type, folder_id) VALUES
   ('นักเรียน',   '');
 
 -- ─────────────────────────────────────────────────────────────────────────────
+-- Table: certificate_images
+-- เก็บรูปภาพเกียรติบัตร (Base64) แยกต่างหากเพื่อไม่ให้ Query ตารางหลักอืด
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS certificate_images (
+  id              TEXT PRIMARY KEY,            -- ตรงกับ certificates.id
+  image_base64    TEXT NOT NULL,               -- ข้อมูล Base64 ที่บีบอัดแล้ว
+  mime_type       TEXT DEFAULT 'image/jpeg'
+);
+
+-- ─────────────────────────────────────────────────────────────────────────────
 -- Table: certificates
--- เกียรติบัตรแต่ละใบ — เชื่อมกับ Drive files
+-- เกียรติบัตรแต่ละใบ
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS certificates (
   -- ─── Identity ───────────────────────────────────────────────────────────
@@ -75,12 +85,12 @@ CREATE TABLE IF NOT EXISTS certificates (
 
   -- ─── Content ────────────────────────────────────────────────────────────
   ocr_text        TEXT DEFAULT '',          -- ข้อความที่ได้จาก Google Vision OCR
-  image_url       TEXT,                     -- Public URL ของรูปภาพ (R2 หรือ Drive)
+  image_url       TEXT,                     -- URL ของรูปภาพ (สามารถเป็น D1 API endpoint)
 
-  -- ─── Google Drive References ─────────────────────────────────────────────
-  drive_image_id  TEXT,                     -- Google Drive File ID ของรูปภาพ (.jpg)
-  drive_json_id   TEXT,                     -- Google Drive File ID ของ metadata (.json)
-  drive_url       TEXT,                     -- webViewLink ของรูปภาพใน Drive
+  -- ─── Legacy Drive References (Keep for backward compatibility) ───────────
+  drive_image_id  TEXT,
+  drive_json_id   TEXT,
+  drive_url       TEXT,
 
   -- ─── Engagement ─────────────────────────────────────────────────────────
   likes           INTEGER DEFAULT 0,
@@ -91,8 +101,8 @@ CREATE TABLE IF NOT EXISTS certificates (
   updated_at      TEXT DEFAULT (datetime('now')),
 
   -- ─── Foreign Keys ────────────────────────────────────────────────────────
-  FOREIGN KEY (user_id)    REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (owner_type) REFERENCES drive_config(owner_type)
+  FOREIGN KEY (user_id)    REFERENCES users(id) ON DELETE CASCADE
+  -- Removed strict foreign key on owner_type to allow flexibility
 );
 
 -- ─── Indexes ─────────────────────────────────────────────────────────────────

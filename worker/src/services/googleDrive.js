@@ -122,20 +122,25 @@ export class GoogleDriveService {
 
   /**
    * ทดสอบว่า Service Account เข้าถึง Folder ได้หรือไม่
-   * @returns {{ id: string, name: string }}
+   * ถ้าอยู่ใน Shared Drive จะคืน driveId ด้วย
+   * @returns {{ id: string, name: string, driveId?: string }}
    */
   async testFolderAccess(folderId) {
     const data = await this._driveRequest(
-      `/files/${folderId}?fields=id,name,mimeType`
+      `/files/${folderId}?fields=id,name,mimeType,driveId,teamDriveId&supportsAllDrives=true&includeItemsFromAllDrives=true`
     );
     if (data.mimeType !== 'application/vnd.google-apps.folder') {
       throw new Error('ID นี้ไม่ใช่โฟลเดอร์ใน Google Drive');
     }
-    return { id: data.id, name: data.name };
+    return {
+      id: data.id,
+      name: data.name,
+      driveId: data.driveId || data.teamDriveId || null,
+    };
   }
 
   /**
-   * อัปโหลดไฟล์ไปยัง Drive folder
+   * อัปโหลดไฟล์ไปยัง Drive folder (รองรับทั้ง My Drive และ Shared Drive)
    * @param {string} folderId - Target folder ID
    * @param {string} filename - ชื่อไฟล์ เช่น "cert_2024.jpg"
    * @param {ArrayBuffer} buffer - เนื้อหาไฟล์
@@ -144,60 +149,70 @@ export class GoogleDriveService {
    */
   async uploadFile(folderId, filename, buffer, mimeType) {
     const token = await this._getAccessToken();
-
-    // ─── Multipart upload ────────────────────────────────────────
-    const boundary = `SchoolPort_${Date.now()}`;
-    const metadata = JSON.stringify({
-      name:    filename,
-      parents: [folderId],
-    });
-
-    // Build multipart body
-    const metaPart = [
-      `--${boundary}`,
-      'Content-Type: application/json; charset=UTF-8',
-      '',
-      metadata,
-      '',
-    ].join('\r\n');
-
-    const filePart = [
-      `--${boundary}`,
-      `Content-Type: ${mimeType}`,
-      '',
-      '',
-    ].join('\r\n');
-
-    const closing = `\r\n--${boundary}--`;
-
-    const metaBytes  = new TextEncoder().encode(metaPart);
-    const fileBytes  = new TextEncoder().encode(filePart);
-    const closeBytes = new TextEncoder().encode(closing);
     const fileBuffer = buffer instanceof ArrayBuffer ? new Uint8Array(buffer) : buffer;
 
-    // Combine all parts
-    const totalLength = metaBytes.length + fileBytes.length + fileBuffer.length + closeBytes.length;
-    const combined = new Uint8Array(totalLength);
-    let offset = 0;
-    combined.set(metaBytes,  offset); offset += metaBytes.length;
-    combined.set(fileBytes,  offset); offset += fileBytes.length;
-    combined.set(fileBuffer, offset); offset += fileBuffer.length;
-    combined.set(closeBytes, offset);
+    // ─── Step 0: Detect if folder is in a Shared Drive ────────────
+    let driveId = null;
+    try {
+      const folderInfo = await this._driveRequest(
+        `/files/${folderId}?fields=driveId,teamDriveId&supportsAllDrives=true&includeItemsFromAllDrives=true`
+      );
+      driveId = folderInfo.driveId || folderInfo.teamDriveId || null;
+    } catch (e) {
+      // ไม่เป็นไร ถ้าดึง driveId ไม่ได้ ก็อัปโหลดแบบปกติ
+    }
 
-    const uploadUrl = `${UPLOAD_API}/files?uploadType=multipart&fields=id,name,webViewLink`;
-    const res = await fetch(uploadUrl, {
-      method:  'POST',
+    // ─── Step 1: Initiate resumable upload session ────────────────
+    const metadataObj = {
+      name:    filename,
+      parents: [folderId],
+    };
+    // สำหรับ Shared Drive ต้องระบุ driveId ให้ชัดเจน
+    if (driveId) {
+      metadataObj.driveId = driveId;
+    }
+    const metadata = JSON.stringify(metadataObj);
+
+    let uploadParams = 'uploadType=resumable&supportsAllDrives=true&includeItemsFromAllDrives=true&fields=id,name,webViewLink';
+    if (driveId) {
+      uploadParams += `&driveId=${driveId}&corpora=drive`;
+    }
+
+    const initiateUrl = `${UPLOAD_API}/files?${uploadParams}`;
+    const initiateRes = await fetch(initiateUrl, {
+      method: 'POST',
       headers: {
-        Authorization:  `Bearer ${token}`,
-        'Content-Type': `multipart/related; boundary=${boundary}`,
-        'Content-Length': String(totalLength),
+        Authorization:   `Bearer ${token}`,
+        'Content-Type':  'application/json; charset=UTF-8',
+        'X-Upload-Content-Type':   mimeType,
+        'X-Upload-Content-Length': String(fileBuffer.byteLength),
       },
-      body: combined.buffer,
+      body: metadata,
+    });
+
+    if (!initiateRes.ok) {
+      const errBody = await initiateRes.text();
+      throw new Error(`[Step1-Initiate] ${initiateRes.status}: ${errBody} (driveId=${driveId}, folderId=${folderId})`);
+    }
+
+    // ─── Step 2: Upload the actual file to the session URL ────────
+    const sessionUrl = initiateRes.headers.get('Location');
+    if (!sessionUrl) {
+      throw new Error('[Step2] No session URL returned from initiation');
+    }
+
+    const res = await fetch(sessionUrl, {
+      method:  'PUT',
+      headers: {
+        'Content-Type':   mimeType,
+        'Content-Length': String(fileBuffer.byteLength),
+      },
+      body: fileBuffer,
     });
 
     if (!res.ok) {
       const errBody = await res.text();
-      throw new Error(`Drive upload failed: ${res.status} — ${errBody}`);
+      throw new Error(`[Step2-Upload] ${res.status}: ${errBody}`);
     }
 
     const data = await res.json();
@@ -216,7 +231,7 @@ export class GoogleDriveService {
    * ทำให้ไฟล์ใน Drive อ่านได้แบบสาธารณะ (anyone with link)
    */
   async _makePublic(fileId, token) {
-    await fetch(`${DRIVE_API}/files/${fileId}/permissions`, {
+    await fetch(`${DRIVE_API}/files/${fileId}/permissions?supportsAllDrives=true`, {
       method:  'POST',
       headers: {
         Authorization:  `Bearer ${token}`,
@@ -237,6 +252,8 @@ export class GoogleDriveService {
       fields: 'nextPageToken,files(id,name,mimeType,webViewLink,createdTime,size)',
       orderBy: 'createdTime desc',
       pageSize: '50',
+      supportsAllDrives: 'true',
+      includeItemsFromAllDrives: 'true',
     });
     if (pageToken) params.set('pageToken', pageToken);
 
@@ -252,7 +269,7 @@ export class GoogleDriveService {
    */
   async deleteFile(fileId) {
     const token = await this._getAccessToken();
-    const res = await fetch(`${DRIVE_API}/files/${fileId}`, {
+    const res = await fetch(`${DRIVE_API}/files/${fileId}?supportsAllDrives=true`, {
       method:  'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     });

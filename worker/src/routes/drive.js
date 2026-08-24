@@ -130,13 +130,12 @@ driveRoutes.post('/test/:folderId', async (c) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/drive/upload
-// อัปโหลดรูปภาพ + JSON ไปยัง Drive folder ที่ถูกต้องตาม owner_type
-// Body: FormData { image: File, owner_type, item_type, level, ocr_text, user_name, user_id }
+// อัปโหลดรูปภาพไปยัง D1 Database โดยตรง
+// Body: FormData { image: File (or base64 string), owner_type, item_type, level, ocr_text, user_name, user_id, base64_image }
 // ─────────────────────────────────────────────────────────────────────────────
 driveRoutes.post('/upload', async (c) => {
   try {
     const formData = await c.req.formData();
-    const imageFile  = formData.get('image');
     const owner_type = formData.get('owner_type');
     const item_type  = formData.get('item_type');
     const level      = formData.get('level');
@@ -144,93 +143,86 @@ driveRoutes.post('/upload', async (c) => {
     const ocr_text   = formData.get('ocr_text') || '';
     const user_name  = formData.get('user_name') || 'ไม่ระบุ';
     const user_id    = formData.get('user_id')   || 'anonymous';
+    const base64_image = formData.get('base64_image'); 
 
-    if (!imageFile || !owner_type) {
-      return c.json({ success: false, error: 'กรุณาส่งรูปภาพและ owner_type' }, 400);
+    console.log('Received formData keys:', [...formData.keys()]);
+    console.log('base64_image length:', base64_image ? base64_image.length : 'MISSING');
+
+    if (!base64_image || !owner_type) {
+      return c.json({ success: false, error: 'กรุณาส่งรูปภาพ(base64_image) และ owner_type' }, 400);
     }
 
-    // 1. ดึง Folder ID จาก D1
-    const configRow = await c.env.DB
-      .prepare('SELECT folder_id FROM drive_config WHERE owner_type = ?')
-      .bind(owner_type)
-      .first();
-
-    if (!configRow) {
-      return c.json({
-        success: false,
-        error: `ยังไม่ได้ตั้งค่า Google Drive Folder สำหรับ "${owner_type}" — กรุณาตั้งค่าในหน้า Settings ก่อน`
-      }, 422);
-    }
-
-    const folderId = configRow.folder_id;
-
-    // 2. สร้าง UUID และชื่อไฟล์
     const certId   = crypto.randomUUID();
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const baseName  = `cert_${timestamp}_${certId.slice(0, 8)}`;
 
-    // 3. อัปโหลดรูปภาพไป Drive
-    const drive        = getDriveService(c.env);
-    const imageBytes   = await imageFile.arrayBuffer();
-    const imageMime    = imageFile.type || 'image/jpeg';
-    const imageResult  = await drive.uploadFile(
-      folderId,
-      `${baseName}.jpg`,
-      imageBytes,
-      imageMime
-    );
+    // 1. บันทึกรูปภาพแบบ Base64 ลงใน certificate_images
+    await c.env.DB
+      .prepare('INSERT INTO certificate_images (id, image_base64) VALUES (?, ?)')
+      .bind(certId, base64_image)
+      .run();
 
-    // 4. สร้าง JSON metadata แล้วอัปโหลด
-    const certData = {
-      id:            certId,
-      user_id,
-      user_name,
-      owner_type,
-      item_type,
-      level,
-      description,
-      ocr_text,
-      drive_image_id: imageResult.id,
-      drive_image_url: imageResult.webViewLink,
-      created_at:    new Date().toISOString(),
-    };
-    const jsonBytes  = new TextEncoder().encode(JSON.stringify(certData, null, 2));
-    const jsonResult = await drive.uploadFile(
-      folderId,
-      `${baseName}.json`,
-      jsonBytes.buffer,
-      'application/json'
-    );
+    // 2. บันทึกข้อมูล Metadata ลงใน certificates
+    const origin = new URL(c.req.url).origin;
+    const imageUrl = `${origin}/api/drive/image/${certId}`;
 
-    // 5. บันทึก metadata ลง D1
     await c.env.DB
       .prepare(`
         INSERT INTO certificates
-          (id, user_id, user_name, owner_type, item_type, level, ocr_text,
-           drive_image_id, drive_json_id, drive_url, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+          (id, user_id, user_name, owner_type, item_type, level, ocr_text, image_url, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
       `)
-      .bind(
-        certId, user_id, user_name, owner_type, item_type, level, ocr_text,
-        imageResult.id, jsonResult.id, imageResult.webViewLink
-      )
+      .bind(certId, user_id, user_name, owner_type, item_type, level, ocr_text, imageUrl)
       .run();
 
     return c.json({
       success: true,
       message: 'อัปโหลดเกียรติบัตรสำเร็จ!',
       data: {
-        certificate_id: certId,
-        drive_folder:   `https://drive.google.com/drive/folders/${folderId}`,
-        drive_image:    imageResult.webViewLink,
-        drive_json:     jsonResult.webViewLink,
+        id: certId,
+        user_id,
+        user_name,
         owner_type,
-        saved_files: [`${baseName}.jpg`, `${baseName}.json`],
+        item_type,
+        level,
+        ocr_text,
+        image_url: imageUrl,
+        created_at: new Date().toISOString(),
+        likes: 0,
+        views: 0
       },
     });
 
   } catch (err) {
     console.error('Upload error:', err);
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/drive/image/:id
+// ดึงรูปภาพจากฐานข้อมูล D1 มาแสดงผล
+// ─────────────────────────────────────────────────────────────────────────────
+driveRoutes.get('/image/:id', async (c) => {
+  const { id } = c.req.param();
+  try {
+    const row = await c.env.DB
+      .prepare('SELECT image_base64, mime_type FROM certificate_images WHERE id = ?')
+      .bind(id)
+      .first();
+
+    if (!row) return c.notFound();
+
+    const base64Data = row.image_base64.replace(/^data:image\/\w+;base64,/, "");
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    c.header('Content-Type', row.mime_type || 'image/jpeg');
+    c.header('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+    
+    return c.body(bytes.buffer);
+  } catch (err) {
     return c.json({ success: false, error: err.message }, 500);
   }
 });
