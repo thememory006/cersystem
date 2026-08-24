@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Upload, Image as ImageIcon, CheckCircle, Loader2 } from 'lucide-react';
 import { TAG_CONFIG } from '../data/certificates';
 import toast from 'react-hot-toast';
@@ -62,7 +63,7 @@ export default function UploadModal({ onClose, onUploadSuccess }) {
       const result = await res.json();
       
       if (result.success) {
-        toast.success('อัปโหลดผลงานสำเร็จ!');
+        toast.success('อัปโหลดผลงานสำเร็จ! 🎉');
         if (onUploadSuccess) onUploadSuccess(result.data);
         onClose();
       } else {
@@ -76,10 +77,19 @@ export default function UploadModal({ onClose, onUploadSuccess }) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
+  // Use Portal to render modal at document.body level — prevents layout shift / zoom
+  return createPortal(
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+    >
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
+        onClick={onClose}
+      />
       
+      {/* Modal */}
       <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-up">
         
         {/* Header */}
@@ -213,6 +223,7 @@ export default function UploadModal({ onClose, onUploadSuccess }) {
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

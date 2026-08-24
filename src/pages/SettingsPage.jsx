@@ -5,6 +5,7 @@ import { useFont, FONT_OPTIONS } from '../context/FontContext';
 import { useSettings } from '../context/SettingsContext';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { confirmAction } from '../utils/alert';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general');
@@ -69,12 +70,18 @@ export default function SettingsPage() {
   };
 
   const handleDeleteUser = async (userId, userName) => {
-    if (!confirm(`ยืนยันการลบผู้ใช้ "${userName}"?`)) return;
     // ไม่อนุญาตลบตัวเอง
     if (userId === user?.uid) {
       toast.error('ไม่สามารถลบบัญชีของตัวเองได้');
       return;
     }
+    const confirmed = await confirmAction(
+      `ลบผู้ใช้ "${userName}"?`,
+      'การกระทำนี้ไม่สามารถกู้คืนได้',
+      'ลบผู้ใช้',
+      true
+    );
+    if (!confirmed) return;
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
       const res = await fetch(`${apiUrl}/api/users/${userId}`, { method: 'DELETE' });

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
+import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
@@ -74,7 +75,7 @@ export function AuthProvider({ children }) {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Login failed:", error);
-      alert("การเข้าสู่ระบบล้มเหลว: " + error.message);
+      toast.error('การเข้าสู่ระบบล้มเหลว กรุณาลองใหม่อีกครั้ง');
     }
   };
 
