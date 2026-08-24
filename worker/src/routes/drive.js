@@ -77,7 +77,7 @@ driveRoutes.put('/config', async (c) => {
     }
 
     // TODO: ดึง user_id จาก JWT token (Phase 3)
-    const updated_by = 'admin';
+    const updated_by = null;
 
     await c.env.DB
       .prepare(`
