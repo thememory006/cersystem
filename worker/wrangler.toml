@@ -9,10 +9,7 @@ binding = "DB"
 database_name = "schoolport-db"
 database_id   = "fb9baf03-2e51-4d6a-b301-67959dd43af8"
 
-# ─── Cloudflare R2 (Object Storage) ────────────────────────────────────────────
-[[r2_buckets]]
-binding    = "CERT_BUCKET"
-bucket_name = "schoolport-certificates"    # <-- ชื่อ R2 bucket
+
 
 # ─── Secrets (ตั้งค่าผ่าน `wrangler secret put <KEY>`) ─────────────────────────
 # GOOGLE_SERVICE_ACCOUNT_JSON   — Service Account JSON key สำหรับ Drive API
