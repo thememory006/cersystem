@@ -11,7 +11,7 @@ export function SettingsProvider({ children }) {
   const fetchSettings = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
-      const res = await fetch(`${apiUrl}/api/settings`);
+      const res = await fetch(`${apiUrl}/api/settings`, { cache: 'no-store' });
       const data = await res.json();
       
       if (data.success && data.settings) {
